@@ -1,0 +1,2498 @@
+﻿{
+  "paragraphs": [
+    {
+      "title": "Как выполнять",
+      "text": "%md\n.\n.\n.\nНужно скопировать себе эту тетрадку и предоставить доступ к копии на чтение, запись и запуск тетрадки пользователю admin. Параграфы с генерацией данных и созданием семплов запускать не нужно, они оставлены для ознакомления",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:57:49+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": true,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<p>.<br />\n.<br />\n.<br />\nНужно скопировать себе эту тетрадку и предоставить доступ к копии на чтение, запись и запуск тетрадки пользователю admin. Параграфы с генерацией данных и созданием семплов запускать не нужно, они оставлены для ознакомления</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483911_244164071",
+      "id": "20201127-213054_1829929461",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T10:57:49+0000",
+      "dateFinished": "2021-01-25T10:57:51+0000",
+      "status": "FINISHED",
+      "focus": true,
+      "$$hashKey": "object:23251"
+    },
+    {
+      "title": "Генерация events таблицы",
+      "text": "import org.apache.spark.mllib.random.RandomRDDs._\nimport java.time.LocalDate\nimport java.time.format.DateTimeFormatter\n\nval dates = (0 to 14).map(LocalDate.of(2020, 11, 1).plusDays(_).format(DateTimeFormatter.ofPattern(\"yyyy-MM-dd\"))).toSeq\n\ndef generateCity(r: Double): String = if (r < 0.9) \"BIG_CITY\" else \"SMALL_CITY_\" + scala.math.round((r - 0.9) * 1000)\n\ndef generateCityUdf = udf(generateCity _)\n\n// spark.sql(\"drop table hw2.events_full\")\n\nfor(i <- dates) {\n    uniformRDD(sc, 10000000L, 1)\n    .toDF(\"uid\")\n    .withColumn(\"date\", lit(i))\n    .withColumn(\"city\", generateCityUdf($\"uid\"))\n    .selectExpr(\"date\", \" sha2(cast(uid as STRING), 256) event_id\", \"city\")\n    .withColumn(\"skew_key\", when($\"city\" === \"BIG_CITY\", lit(\"big_event\")).otherwise($\"event_id\"))\n    .write.mode(\"append\")\n    .partitionBy(\"date\")\n    .saveAsTable(\"hw2.events_full\")\n}\n",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:57:51+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "fontSize": 9,
+        "title": true,
+        "results": {},
+        "enabled": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "import org.apache.spark.mllib.random.RandomRDDs._\nimport java.time.LocalDate\nimport java.time.format.DateTimeFormatter\ndates: scala.collection.immutable.Seq[String] = Vector(2020-11-01, 2020-11-02, 2020-11-03, 2020-11-04, 2020-11-05, 2020-11-06, 2020-11-07, 2020-11-08, 2020-11-09, 2020-11-10, 2020-11-11, 2020-11-12, 2020-11-13, 2020-11-14, 2020-11-15)\ngenerateCity: (r: Double)String\ngenerateCityUdf: org.apache.spark.sql.expressions.UserDefinedFunction\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_501438125",
+      "id": "20201127-224038_803369215",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23252"
+    },
+    {
+      "title": "Генерация events_sample",
+      "text": "spark.table(\"hw2.events_full\")\n.select(\"event_id\")\n.sample(0.0005)\n.repartition(2)\n.write.mode(\"overwrite\")\n.saveAsTable(\"hw2.sample\")\n",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:57:51+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 3,
+        "editorMode": "ace/mode/scala",
+        "fontSize": 9,
+        "title": true,
+        "results": {},
+        "enabled": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_1095855258",
+      "id": "20201127-230139_1962818180",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23253"
+    },
+    {
+      "text": "\nspark.table(\"hw2.sample\")\n.limit(100)\n.coalesce(1)\n.write.mode(\"overwrite\")\n.saveAsTable(\"hw2.sample_small\")",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:57:51+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 3,
+        "editorMode": "ace/mode/scala",
+        "fontSize": 9,
+        "results": {},
+        "enabled": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_1498051683",
+      "id": "20201128-000812_530567540",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23254"
+    },
+    {
+      "text": "\n\nspark.table(\"hw2.events_full\")\n.select(\"event_id\")\n.sample(0.003)\n.repartition(1)\n.write.mode(\"overwrite\")\n.saveAsTable(\"hw2.sample_big\")",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:57:51+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 3,
+        "editorMode": "ace/mode/scala",
+        "fontSize": 9,
+        "results": {},
+        "enabled": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_53898492",
+      "id": "20201128-091248_492627774",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23255"
+    },
+    {
+      "text": "\n\nspark.table(\"hw2.events_full\")\n.select(\"event_id\")\n.sample(0.015)\n.repartition(1)\n.write.mode(\"overwrite\")\n.saveAsTable(\"hw2.sample_very_big\")",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:57:51+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 3,
+        "editorMode": "ace/mode/scala",
+        "fontSize": 9,
+        "results": {},
+        "enabled": false
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_122307788",
+      "id": "20201128-093907_1614062530",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23256"
+    },
+    {
+      "title": "Задание 1",
+      "text": "%md\n\n\n\nДля упражнений сгрененирован большой набор синтетических данных в таблице hw2.events_full. Из этого набора данных созданы маленькие (относительно исходного набора) таблицы разного размера kotelnikov.sample_[small, big, very_big]. \n\nОтветить на вопросы:\n * какова структура таблиц\n * сколько в них записей \n * сколько места занимают данные\n ",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:57:51+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": true,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<p>Для упражнений сгрененирован большой набор синтетических данных в таблице hw2.events_full. Из этого набора данных созданы маленькие (относительно исходного набора) таблицы разного размера kotelnikov.sample_[small, big, very_big].</p>\n<p>Ответить на вопросы:</p>\n<ul>\n<li>какова структура таблиц</li>\n<li>сколько в них записей</li>\n<li>сколько места занимают данные</li>\n</ul>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_1972842882",
+      "id": "20201128-094640_2955666",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T10:57:51+0000",
+      "dateFinished": "2021-01-25T10:57:51+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23257"
+    },
+    {
+      "text": "%pyspark\n\nspark.table(\"hw2.events_full\").count()\n",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:58:20+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Hive Session ID = 9320435a-bbc3-476e-808f-d7e4e56a3caa\n110000000\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=1",
+              "$$hashKey": "object:24146"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_851567752",
+      "id": "20201224-170250_736571716",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T10:58:20+0000",
+      "dateFinished": "2021-01-25T10:59:38+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23258"
+    },
+    {
+      "text": "\nspark.table(\"hw2.events_full\")\n.select(\"event_id\")\n.sample(0.0005)\n.repartition(2)\n.write.mode(\"overwrite\")\n.saveAsTable(\"hw2.sample\")",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:58:30+0000",
+      "progress": 100,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=0",
+              "$$hashKey": "object:24158"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345881923_255764724",
+      "id": "paragraph_1611345881923_255764724",
+      "dateCreated": "2021-01-22T20:04:41+0000",
+      "dateStarted": "2021-01-25T10:58:30+0000",
+      "dateFinished": "2021-01-25T10:59:38+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23259"
+    },
+    {
+      "text": "spark.table(\"hw2.sample\")\n.limit(100)\n.coalesce(1)\n.write.mode(\"overwrite\")\n.saveAsTable(\"hw2.sample_small\")",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:58:32+0000",
+      "progress": 100,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=2",
+              "$$hashKey": "object:24170"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345931932_1445728063",
+      "id": "paragraph_1611345931932_1445728063",
+      "dateCreated": "2021-01-22T20:05:31+0000",
+      "dateStarted": "2021-01-25T10:58:49+0000",
+      "dateFinished": "2021-01-25T10:59:39+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23260"
+    },
+    {
+      "text": "spark.table(\"hw2.events_full\")\n.select(\"event_id\")\n.sample(0.003)\n.repartition(1)\n.write.mode(\"overwrite\")\n.saveAsTable(\"hw2.sample_big\")",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:58:34+0000",
+      "progress": 98,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=3",
+              "$$hashKey": "object:24182"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345953254_2096548147",
+      "id": "paragraph_1611345953254_2096548147",
+      "dateCreated": "2021-01-22T20:05:53+0000",
+      "dateStarted": "2021-01-25T10:59:38+0000",
+      "dateFinished": "2021-01-25T11:00:16+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23261"
+    },
+    {
+      "text": "spark.table(\"hw2.events_full\")\n.select(\"event_id\")\n.sample(0.015)\n.repartition(1)\n.write.mode(\"overwrite\")\n.saveAsTable(\"hw2.sample_very_big\")",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:58:36+0000",
+      "progress": 98,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=5",
+              "$$hashKey": "object:24194"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345966626_835711507",
+      "id": "paragraph_1611345966626_835711507",
+      "dateCreated": "2021-01-22T20:06:06+0000",
+      "dateStarted": "2021-01-25T10:59:39+0000",
+      "dateFinished": "2021-01-25T11:00:54+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23262"
+    },
+    {
+      "text": "%pyspark\r\n\r\nevents_full = spark.table(\"hw2.events_full\")\r\nsample = spark.table(\"hw2.sample\")\r\nsample_small = spark.table(\"hw2.sample_small\")\r\nsample_big = spark.table(\"hw2.sample_big\")\r\nsample_very_big = spark.table(\"hw2.sample_very_big\")",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:58:37+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345681809_188150291",
+      "id": "paragraph_1611345681809_188150291",
+      "dateCreated": "2021-01-22T20:01:21+0000",
+      "dateStarted": "2021-01-25T11:00:16+0000",
+      "dateFinished": "2021-01-25T11:00:16+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23263"
+    },
+    {
+      "text": "%pyspark\n\nfrom pyspark.sql.functions import col\n\nprint(\"Table \\\"sample\\\"\")\n\nprint(\"Schema:\")\nsample.printSchema()\n\nprint(\"Rows count:\")\nprint(sample.count())\n\nprint(\"\\nData size:\")\nspark.sql(\"ANALYZE TABLE hw2.sample COMPUTE STATISTICS NOSCAN\")\nspark\\\n    .sql(\"DESCRIBE EXTENDED hw2.sample\")\\\n    .filter(col(\"col_name\") == \"Statistics\")\\\n    .show()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:58:39+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Table \"sample\"\nSchema:\nroot\n |-- event_id: string (nullable = true)\n\nRows count:\n55273\n\nData size:\n+----------+-------------+-------+\n|  col_name|    data_type|comment|\n+----------+-------------+-------+\n|Statistics|3522133 bytes|       |\n+----------+-------------+-------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=4",
+              "$$hashKey": "object:24220"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=6",
+              "$$hashKey": "object:24221"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=7",
+              "$$hashKey": "object:24222"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345723123_967311418",
+      "id": "paragraph_1611345723123_967311418",
+      "dateCreated": "2021-01-22T20:02:03+0000",
+      "dateStarted": "2021-01-25T11:00:16+0000",
+      "dateFinished": "2021-01-25T11:00:28+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23264"
+    },
+    {
+      "text": "%pyspark\nfrom pyspark.sql.functions import col\n\nprint(\"Table \\\"sample_small\\\"\")\n\nprint(\"Schema:\")\nsample_small.printSchema()\n\nprint(\"Rows count:\")\nprint(sample_small.count())\n\nprint(\"\\nData size:\")\nspark.sql(\"ANALYZE TABLE hw2.sample_small COMPUTE STATISTICS NOSCAN\")\nspark\\\n    .sql(\"DESCRIBE EXTENDED hw2.sample_small\")\\\n    .filter(col(\"col_name\") == \"Statistics\")\\\n    .show()\n",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:58:41+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Table \"sample_small\"\nSchema:\nroot\n |-- event_id: string (nullable = true)\n\nRows count:\n100\n\nData size:\n+----------+----------+-------+\n|  col_name| data_type|comment|\n+----------+----------+-------+\n|Statistics|7218 bytes|       |\n+----------+----------+-------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=8",
+              "$$hashKey": "object:24243"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=9",
+              "$$hashKey": "object:24244"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=10",
+              "$$hashKey": "object:24245"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346044819_1472076488",
+      "id": "paragraph_1611346044819_1472076488",
+      "dateCreated": "2021-01-22T20:07:24+0000",
+      "dateStarted": "2021-01-25T11:00:16+0000",
+      "dateFinished": "2021-01-25T11:00:28+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23265"
+    },
+    {
+      "text": "%pyspark\r\nfrom pyspark.sql.functions import col\r\n\r\nprint(\"Table \\\"sample_big\\\"\")\r\n\r\nprint(\"Schema:\")\r\nsample_big.printSchema()\r\n\r\nprint(\"Rows count:\")\r\nprint(sample_big.count())\r\n\r\nprint(\"\\nData size:\")\r\nspark.sql(\"ANALYZE TABLE hw2.sample_big COMPUTE STATISTICS NOSCAN\")\r\nspark\\\r\n    .sql(\"DESCRIBE EXTENDED hw2.sample_big\")\\\r\n    .filter(col(\"col_name\") == \"Statistics\")\\\r\n    .show()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:58:44+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Table \"sample_big\"\nSchema:\nroot\n |-- event_id: string (nullable = true)\n\nRows count:\n330052\n\nData size:\n+----------+--------------+-------+\n|  col_name|     data_type|comment|\n+----------+--------------+-------+\n|Statistics|21021865 bytes|       |\n+----------+--------------+-------+\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=11",
+              "$$hashKey": "object:24266"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=12",
+              "$$hashKey": "object:24267"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=13",
+              "$$hashKey": "object:24268"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346058556_1375833701",
+      "id": "paragraph_1611346058556_1375833701",
+      "dateCreated": "2021-01-22T20:07:38+0000",
+      "dateStarted": "2021-01-25T11:00:28+0000",
+      "dateFinished": "2021-01-25T11:00:29+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23266"
+    },
+    {
+      "text": "%pyspark\r\nfrom pyspark.sql.functions import col\r\n\r\nprint(\"Table \\\"sample_very_big\\\"\")\r\n\r\nprint(\"Schema:\")\r\nsample_very_big.printSchema()\r\n\r\nprint(\"Rows count:\")\r\nprint(sample_very_big.count())\r\n\r\nprint(\"\\nData size:\")\r\nspark.sql(\"ANALYZE TABLE hw2.sample_very_big COMPUTE STATISTICS NOSCAN\")\r\nspark\\\r\n    .sql(\"DESCRIBE EXTENDED hw2.sample_very_big\")\\\r\n    .filter(col(\"col_name\") == \"Statistics\")\\\r\n    .show()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:26:28+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Table \"sample_very_big\"\nSchema:\nroot\n |-- event_id: string (nullable = true)\n\nRows count:\n"
+          },
+          {
+            "type": "TEXT",
+            "data": "Py4JJavaError: An error occurred while calling o118.count.\n: org.apache.spark.sql.catalyst.errors.package$TreeNodeException: execute, tree:\nExchange SinglePartition\n+- *(1) HashAggregate(keys=[], functions=[partial_count(1)], output=[count#508L])\n   +- *(1) FileScan parquet hw2.sample_very_big[] Batched: true, Format: Parquet, Location: InMemoryFileIndex[hdfs://bigdataanalytics-head-0.novalocal:8020/apps/spark/warehouse/hw2.db/sampl..., PartitionFilters: [], PushedFilters: [], ReadSchema: struct<>\n\n\tat org.apache.spark.sql.catalyst.errors.package$.attachTree(package.scala:56)\n\tat org.apache.spark.sql.execution.exchange.ShuffleExchangeExec.doExecute(ShuffleExchangeExec.scala:119)\n\tat org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:131)\n\tat org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:127)\n\tat org.apache.spark.sql.execution.SparkPlan$$anonfun$executeQuery$1.apply(SparkPlan.scala:155)\n\tat org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)\n\tat org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:152)\n\tat org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:127)\n\tat org.apache.spark.sql.execution.InputAdapter.inputRDDs(WholeStageCodegenExec.scala:371)\n\tat org.apache.spark.sql.execution.aggregate.HashAggregateExec.inputRDDs(HashAggregateExec.scala:150)\n\tat org.apache.spark.sql.execution.WholeStageCodegenExec.doExecute(WholeStageCodegenExec.scala:605)\n\tat org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:131)\n\tat org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:127)\n\tat org.apache.spark.sql.execution.SparkPlan$$anonfun$executeQuery$1.apply(SparkPlan.scala:155)\n\tat org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)\n\tat org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:152)\n\tat org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:127)\n\tat org.apache.spark.sql.execution.SparkPlan.getByteArrayRdd(SparkPlan.scala:247)\n\tat org.apache.spark.sql.execution.SparkPlan.executeCollect(SparkPlan.scala:294)\n\tat org.apache.spark.sql.Dataset$$anonfun$count$1.apply(Dataset.scala:2775)\n\tat org.apache.spark.sql.Dataset$$anonfun$count$1.apply(Dataset.scala:2774)\n\tat org.apache.spark.sql.Dataset$$anonfun$52.apply(Dataset.scala:3259)\n\tat org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:77)\n\tat org.apache.spark.sql.Dataset.withAction(Dataset.scala:3258)\n\tat org.apache.spark.sql.Dataset.count(Dataset.scala:2774)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\n\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat java.lang.reflect.Method.invoke(Method.java:498)\n\tat py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)\n\tat py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:357)\n\tat py4j.Gateway.invoke(Gateway.java:282)\n\tat py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)\n\tat py4j.commands.CallCommand.execute(CallCommand.java:79)\n\tat py4j.GatewayConnection.run(GatewayConnection.java:238)\n\tat java.lang.Thread.run(Thread.java:748)\nCaused by: java.lang.IllegalStateException: Cannot call methods on a stopped SparkContext.\nThis stopped SparkContext was created at:\n\norg.apache.spark.sql.SparkSession$Builder.getOrCreate(SparkSession.scala:925)\nsun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)\nsun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)\nsun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\njava.lang.reflect.Method.invoke(Method.java:498)\norg.apache.zeppelin.spark.BaseSparkScalaInterpreter.spark2CreateContext(BaseSparkScalaInterpreter.scala:292)\norg.apache.zeppelin.spark.BaseSparkScalaInterpreter.createSparkContext(BaseSparkScalaInterpreter.scala:230)\norg.apache.zeppelin.spark.SparkScala211Interpreter.open(SparkScala211Interpreter.scala:100)\norg.apache.zeppelin.spark.SparkInterpreter.open(SparkInterpreter.java:106)\norg.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:70)\norg.apache.zeppelin.interpreter.Interpreter.getInterpreterInTheSameSessionByClassName(Interpreter.java:355)\norg.apache.zeppelin.interpreter.Interpreter.getInterpreterInTheSameSessionByClassName(Interpreter.java:366)\norg.apache.zeppelin.spark.PySparkInterpreter.open(PySparkInterpreter.java:90)\norg.apache.zeppelin.interpreter.LazyOpenInterpreter.open(LazyOpenInterpreter.java:70)\norg.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:836)\norg.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:744)\norg.apache.zeppelin.scheduler.Job.run(Job.java:172)\norg.apache.zeppelin.scheduler.AbstractScheduler.runJob(AbstractScheduler.java:132)\norg.apache.zeppelin.scheduler.FIFOScheduler.lambda$runJobInScheduler$0(FIFOScheduler.java:42)\njava.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)\n\nThe currently active SparkContext was created at:\n\n(No active SparkContext.)\n         \n\tat org.apache.spark.SparkContext.assertNotStopped(SparkContext.scala:99)\n\tat org.apache.spark.SparkContext.broadcast(SparkContext.scala:1484)\n\tat org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat.buildReaderWithPartitionValues(ParquetFileFormat.scala:325)\n\tat org.apache.spark.sql.execution.FileSourceScanExec.inputRDD$lzycompute(DataSourceScanExec.scala:297)\n\tat org.apache.spark.sql.execution.FileSourceScanExec.inputRDD(DataSourceScanExec.scala:295)\n\tat org.apache.spark.sql.execution.FileSourceScanExec.inputRDDs(DataSourceScanExec.scala:315)\n\tat org.apache.spark.sql.execution.aggregate.HashAggregateExec.inputRDDs(HashAggregateExec.scala:150)\n\tat org.apache.spark.sql.execution.WholeStageCodegenExec.doExecute(WholeStageCodegenExec.scala:605)\n\tat org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:131)\n\tat org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:127)\n\tat org.apache.spark.sql.execution.SparkPlan$$anonfun$executeQuery$1.apply(SparkPlan.scala:155)\n\tat org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)\n\tat org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:152)\n\tat org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:127)\n\tat org.apache.spark.sql.execution.exchange.ShuffleExchangeExec.prepareShuffleDependency(ShuffleExchangeExec.scala:92)\n\tat org.apache.spark.sql.execution.exchange.ShuffleExchangeExec$$anonfun$doExecute$1.apply(ShuffleExchangeExec.scala:128)\n\tat org.apache.spark.sql.execution.exchange.ShuffleExchangeExec$$anonfun$doExecute$1.apply(ShuffleExchangeExec.scala:119)\n\tat org.apache.spark.sql.catalyst.errors.package$.attachTree(package.scala:52)\n\t... 35 more\n\n(<class 'py4j.protocol.Py4JJavaError'>, Py4JJavaError(u'An error occurred while calling o118.count.\\n', JavaObject id=o392), <traceback object at 0x7f20e56a89e0>)"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346065121_780763615",
+      "id": "paragraph_1611346065121_780763615",
+      "dateCreated": "2021-01-22T20:07:45+0000",
+      "dateStarted": "2021-01-25T11:26:28+0000",
+      "dateFinished": "2021-01-25T11:26:28+0000",
+      "status": "ERROR",
+      "$$hashKey": "object:23267"
+    },
+    {
+      "text": "%sh\n\nls -lh /apps/spark/warehouse/\n",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:58:48+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "sh",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/sh",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "ls: cannot access /apps/spark/warehouse/: No such file or directory\n"
+          },
+          {
+            "type": "TEXT",
+            "data": "ExitValue: 2"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_1917171887",
+      "id": "20201224-170354_2027076678",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T10:58:48+0000",
+      "dateFinished": "2021-01-25T10:58:48+0000",
+      "status": "ERROR",
+      "$$hashKey": "object:23268"
+    },
+    {
+      "title": "Задание 2",
+      "text": "%md\n.\n.\n.\n\nПолучить планы запросов для джойна большой таблицы hw2.events_full с каждой из таблиц hw2.sample, hw2.sample_big, hw2.sample_very_big по полю event_id. В каких случаях используется BroadcastHashJoin? \n\nBroadcastHashJoin автоматически выполняется для джойна с таблицами, размером меньше параметра spark.sql.autoBroadcastJoinThreshold. Узнать его значение можно командой spark.conf.get(\"spark.sql.autoBroadcastJoinThreshold\").",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:58:53+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": true,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<p>.<br />\n.<br />\n.</p>\n<p>Получить планы запросов для джойна большой таблицы hw2.events_full с каждой из таблиц hw2.sample, hw2.sample_big, hw2.sample_very_big по полю event_id. В каких случаях используется BroadcastHashJoin?</p>\n<p>BroadcastHashJoin автоматически выполняется для джойна с таблицами, размером меньше параметра spark.sql.autoBroadcastJoinThreshold. Узнать его значение можно командой spark.conf.get(&ldquo;spark.sql.autoBroadcastJoinThreshold&rdquo;).</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_1498420857",
+      "id": "20201128-132950_831220047",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T10:58:53+0000",
+      "dateFinished": "2021-01-25T10:58:53+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23269"
+    },
+    {
+      "text": "%pyspark\n\nspark.table(\"hw2.events_full\")\\\n.join(spark.table(\"hw2.sample\"), \"event_id\")\\\n.explain()\n",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:58:57+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "== Physical Plan ==\n*(2) Project [event_id#0, city#1, skew_key#2, date#3]\n+- *(2) BroadcastHashJoin [event_id#0], [event_id#27], Inner, BuildRight\n   :- *(2) Project [event_id#0, city#1, skew_key#2, date#3]\n   :  +- *(2) Filter isnotnull(event_id#0)\n   :     +- *(2) FileScan parquet hw2.events_full[event_id#0,city#1,skew_key#2,date#3] Batched: true, Format: Parquet, Location: CatalogFileIndex[hdfs://bigdataanalytics-head-0.novalocal:8020/apps/spark/warehouse/hw2.db/events..., PartitionCount: 8, PartitionFilters: [], PushedFilters: [IsNotNull(event_id)], ReadSchema: struct<event_id:string,city:string,skew_key:string>\n   +- BroadcastExchange HashedRelationBroadcastMode(List(input[0, string, true]))\n      +- *(1) Project [event_id#27]\n         +- *(1) Filter isnotnull(event_id#27)\n            +- *(1) FileScan parquet hw2.sample[event_id#27] Batched: true, Format: Parquet, Location: InMemoryFileIndex[hdfs://bigdataanalytics-head-0.novalocal:8020/apps/spark/warehouse/hw2.db/sample], PartitionFilters: [], PushedFilters: [IsNotNull(event_id)], ReadSchema: struct<event_id:string>\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_734132512",
+      "id": "20201224-171235_110184756",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T11:00:29+0000",
+      "dateFinished": "2021-01-25T11:00:30+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23270"
+    },
+    {
+      "text": "%pyspark\r\nspark.conf.get('spark.sql.autoBroadcastJoinThreshold')",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:59:02+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "u'26214400'\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346102177_494908563",
+      "id": "paragraph_1611346102177_494908563",
+      "dateCreated": "2021-01-22T20:08:22+0000",
+      "dateStarted": "2021-01-25T11:00:30+0000",
+      "dateFinished": "2021-01-25T11:00:30+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23271"
+    },
+    {
+      "text": "%pyspark\r\nevents_full.join(sample, \"event_id\").explain()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:59:04+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "== Physical Plan ==\n*(2) Project [event_id#0, city#1, skew_key#2, date#3]\n+- *(2) BroadcastHashJoin [event_id#0], [event_id#27], Inner, BuildRight\n   :- *(2) Project [event_id#0, city#1, skew_key#2, date#3]\n   :  +- *(2) Filter isnotnull(event_id#0)\n   :     +- *(2) FileScan parquet hw2.events_full[event_id#0,city#1,skew_key#2,date#3] Batched: true, Format: Parquet, Location: CatalogFileIndex[hdfs://bigdataanalytics-head-0.novalocal:8020/apps/spark/warehouse/hw2.db/events..., PartitionCount: 8, PartitionFilters: [], PushedFilters: [IsNotNull(event_id)], ReadSchema: struct<event_id:string,city:string,skew_key:string>\n   +- BroadcastExchange HashedRelationBroadcastMode(List(input[0, string, true]))\n      +- *(1) Project [event_id#27]\n         +- *(1) Filter isnotnull(event_id#27)\n            +- *(1) FileScan parquet hw2.sample[event_id#27] Batched: true, Format: Parquet, Location: InMemoryFileIndex[hdfs://bigdataanalytics-head-0.novalocal:8020/apps/spark/warehouse/hw2.db/sample], PartitionFilters: [], PushedFilters: [IsNotNull(event_id)], ReadSchema: struct<event_id:string>\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346120998_578195260",
+      "id": "paragraph_1611346120998_578195260",
+      "dateCreated": "2021-01-22T20:08:40+0000",
+      "dateStarted": "2021-01-25T11:00:30+0000",
+      "dateFinished": "2021-01-25T11:00:30+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23272"
+    },
+    {
+      "text": "%pyspark\r\n\r\nevents_full.join(sample_small, \"event_id\").explain()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:59:06+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "== Physical Plan ==\n*(2) Project [event_id#0, city#1, skew_key#2, date#3]\n+- *(2) BroadcastHashJoin [event_id#0], [event_id#49], Inner, BuildRight\n   :- *(2) Project [event_id#0, city#1, skew_key#2, date#3]\n   :  +- *(2) Filter isnotnull(event_id#0)\n   :     +- *(2) FileScan parquet hw2.events_full[event_id#0,city#1,skew_key#2,date#3] Batched: true, Format: Parquet, Location: CatalogFileIndex[hdfs://bigdataanalytics-head-0.novalocal:8020/apps/spark/warehouse/hw2.db/events..., PartitionCount: 8, PartitionFilters: [], PushedFilters: [IsNotNull(event_id)], ReadSchema: struct<event_id:string,city:string,skew_key:string>\n   +- BroadcastExchange HashedRelationBroadcastMode(List(input[0, string, true]))\n      +- *(1) Project [event_id#49]\n         +- *(1) Filter isnotnull(event_id#49)\n            +- *(1) FileScan parquet hw2.sample_small[event_id#49] Batched: true, Format: Parquet, Location: InMemoryFileIndex[hdfs://bigdataanalytics-head-0.novalocal:8020/apps/spark/warehouse/hw2.db/sampl..., PartitionFilters: [], PushedFilters: [IsNotNull(event_id)], ReadSchema: struct<event_id:string>\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346138307_1084071171",
+      "id": "paragraph_1611346138307_1084071171",
+      "dateCreated": "2021-01-22T20:08:58+0000",
+      "dateStarted": "2021-01-25T11:00:30+0000",
+      "dateFinished": "2021-01-25T11:00:31+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23273"
+    },
+    {
+      "text": "%pyspark\r\nevents_full.join(sample_big, \"event_id\").explain()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:59:12+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "== Physical Plan ==\n*(2) Project [event_id#0, city#1, skew_key#2, date#3]\n+- *(2) BroadcastHashJoin [event_id#0], [event_id#51], Inner, BuildRight\n   :- *(2) Project [event_id#0, city#1, skew_key#2, date#3]\n   :  +- *(2) Filter isnotnull(event_id#0)\n   :     +- *(2) FileScan parquet hw2.events_full[event_id#0,city#1,skew_key#2,date#3] Batched: true, Format: Parquet, Location: CatalogFileIndex[hdfs://bigdataanalytics-head-0.novalocal:8020/apps/spark/warehouse/hw2.db/events..., PartitionCount: 8, PartitionFilters: [], PushedFilters: [IsNotNull(event_id)], ReadSchema: struct<event_id:string,city:string,skew_key:string>\n   +- BroadcastExchange HashedRelationBroadcastMode(List(input[0, string, true]))\n      +- *(1) Project [event_id#51]\n         +- *(1) Filter isnotnull(event_id#51)\n            +- *(1) FileScan parquet hw2.sample_big[event_id#51] Batched: true, Format: Parquet, Location: InMemoryFileIndex[hdfs://bigdataanalytics-head-0.novalocal:8020/apps/spark/warehouse/hw2.db/sampl..., PartitionFilters: [], PushedFilters: [IsNotNull(event_id)], ReadSchema: struct<event_id:string>\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346151493_1372982174",
+      "id": "paragraph_1611346151493_1372982174",
+      "dateCreated": "2021-01-22T20:09:11+0000",
+      "dateStarted": "2021-01-25T11:00:31+0000",
+      "dateFinished": "2021-01-25T11:00:31+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23274"
+    },
+    {
+      "text": "%pyspark\r\nevents_full.join(sample_very_big, \"event_id\").explain()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:59:14+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "== Physical Plan ==\n*(5) Project [event_id#0, city#1, skew_key#2, date#3]\n+- *(5) SortMergeJoin [event_id#0], [event_id#53], Inner\n   :- *(2) Sort [event_id#0 ASC NULLS FIRST], false, 0\n   :  +- Exchange hashpartitioning(event_id#0, 200)\n   :     +- *(1) Project [event_id#0, city#1, skew_key#2, date#3]\n   :        +- *(1) Filter isnotnull(event_id#0)\n   :           +- *(1) FileScan parquet hw2.events_full[event_id#0,city#1,skew_key#2,date#3] Batched: true, Format: Parquet, Location: CatalogFileIndex[hdfs://bigdataanalytics-head-0.novalocal:8020/apps/spark/warehouse/hw2.db/events..., PartitionCount: 8, PartitionFilters: [], PushedFilters: [IsNotNull(event_id)], ReadSchema: struct<event_id:string,city:string,skew_key:string>\n   +- *(4) Sort [event_id#53 ASC NULLS FIRST], false, 0\n      +- Exchange hashpartitioning(event_id#53, 200)\n         +- *(3) Project [event_id#53]\n            +- *(3) Filter isnotnull(event_id#53)\n               +- *(3) FileScan parquet hw2.sample_very_big[event_id#53] Batched: true, Format: Parquet, Location: InMemoryFileIndex[hdfs://bigdataanalytics-head-0.novalocal:8020/apps/spark/warehouse/hw2.db/sampl..., PartitionFilters: [], PushedFilters: [IsNotNull(event_id)], ReadSchema: struct<event_id:string>\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346168892_2108664893",
+      "id": "paragraph_1611346168892_2108664893",
+      "dateCreated": "2021-01-22T20:09:28+0000",
+      "dateStarted": "2021-01-25T11:00:31+0000",
+      "dateFinished": "2021-01-25T11:00:31+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23275"
+    },
+    {
+      "title": "Задание 3",
+      "text": "%md\n.\n.\n.\n\nВыполнить джойны с таблицами  hw2.sample,  hw2.sample_big в отдельных параграфах, чтобы узнать время выполнения запросов (например, вызвать .count() для результатов запросов). Время выполнения параграфа считается автоматически и указывается в нижней части по завершении\n\nЗайти в spark ui (ссылку сгенерировать в следующем папраграфе). Сколько tasks создано на каждую операцию? Почему именно столько? Каков DAG вычислений?  ",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T10:59:16+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": true,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<p>.<br />\n.<br />\n.</p>\n<p>Выполнить джойны с таблицами  hw2.sample,  hw2.sample_big в отдельных параграфах, чтобы узнать время выполнения запросов (например, вызвать .count() для результатов запросов). Время выполнения параграфа считается автоматически и указывается в нижней части по завершении</p>\n<p>Зайти в spark ui (ссылку сгенерировать в следующем папраграфе). Сколько tasks создано на каждую операцию? Почему именно столько? Каков DAG вычислений?</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_1309771541",
+      "id": "20201128-140231_1065047171",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T10:59:16+0000",
+      "dateFinished": "2021-01-25T10:59:16+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23276"
+    },
+    {
+      "text": "%pyspark\n\nspark.table(\"hw2.events_full\")\\\n.join(spark.table(\"hw2.sample\"), \"event_id\")\\\n.count()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:00:01+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "55273\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=15",
+              "$$hashKey": "object:24435"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=16",
+              "$$hashKey": "object:24436"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_23043651",
+      "id": "20201224-171618_470251701",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T11:00:31+0000",
+      "dateFinished": "2021-01-25T11:01:37+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23277"
+    },
+    {
+      "text": "%pyspark\r\n\r\nevents_full.join(sample, \"event_id\").count()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:00:03+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "55273\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=17",
+              "$$hashKey": "object:24455"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=18",
+              "$$hashKey": "object:24456"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346210545_631928328",
+      "id": "paragraph_1611346210545_631928328",
+      "dateCreated": "2021-01-22T20:10:10+0000",
+      "dateStarted": "2021-01-25T11:00:32+0000",
+      "dateFinished": "2021-01-25T11:02:23+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23278"
+    },
+    {
+      "text": "%pyspark\r\nevents_full.join(sample_big, \"event_id\").count()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:00:05+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "330052\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=19",
+              "$$hashKey": "object:24475"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=20",
+              "$$hashKey": "object:24476"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346232027_1634973704",
+      "id": "paragraph_1611346232027_1634973704",
+      "dateCreated": "2021-01-22T20:10:32+0000",
+      "dateStarted": "2021-01-25T11:01:37+0000",
+      "dateFinished": "2021-01-25T11:03:12+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23279"
+    },
+    {
+      "title": "Генерация ссылки на  spark UI",
+      "text": "println(\"185.241.193.174:8088/proxy/\" + sc.applicationId + \"/jobs/\")",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:00:08+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "fontSize": 9,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "185.241.193.174:8088/proxy/application_1611570606791_0004/jobs/\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_363501055",
+      "id": "20201128-150602_756898802",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T11:02:23+0000",
+      "dateFinished": "2021-01-25T11:02:23+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23280"
+    },
+    {
+      "text": "%md\r\nДля джойна с таблицей hw2.sample было создано 195 tasks. Время выполнения 2 минуты.\r\nДля джойна с таблицей hw2.sample_big было создано 397 tasks. Время выполнения - больше 10 минут. До конца так и не получилось дождаться - большая часть tasks фэйлится.\r\nПосмотрел DAG-визуализацию",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-22T20:14:41+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<p>Для джойна с таблицей hw2.sample было создано 195 tasks. Время выполнения 2 минуты.<br />\nДля джойна с таблицей hw2.sample_big было создано 397 tasks. Время выполнения - больше 10 минут. До конца так и не получилось дождаться - большая часть tasks фэйлится.<br />\nПосмотрел DAG-визуализацию</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346443687_222003088",
+      "id": "paragraph_1611346443687_222003088",
+      "dateCreated": "2021-01-22T20:14:03+0000",
+      "dateStarted": "2021-01-22T20:14:41+0000",
+      "dateFinished": "2021-01-22T20:14:41+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23281"
+    },
+    {
+      "title": "Насильный broadcast",
+      "text": "%md\n\nОптимизировать джойн с таблицами hw2.sample_big, hw2.sample_very_big с помощью broadcast(df). Выполнить запрос, посмотреть в UI, как поменялся план запроса, DAG, количество тасков. Второй запрос не выполнится ",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-22T20:14:28+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": true,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": false,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<p>Оптимизировать джойн с таблицами hw2.sample_big, hw2.sample_very_big с помощью broadcast(df). Выполнить запрос, посмотреть в UI, как поменялся план запроса, DAG, количество тасков. Второй запрос не выполнится</p>\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_20460453",
+      "id": "20201128-140749_375295552",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "status": "READY",
+      "$$hashKey": "object:23282"
+    },
+    {
+      "text": "%pyspark\r\n\r\nfrom pyspark.sql.functions import broadcast\r\n\r\nevents_full.join(broadcast(sample), \"event_id\").count()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:00:22+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "55273\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=21",
+              "$$hashKey": "object:24533"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=22",
+              "$$hashKey": "object:24534"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_419796245",
+      "id": "20201224-172528_1623196266",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T11:02:23+0000",
+      "dateFinished": "2021-01-25T11:03:59+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23283"
+    },
+    {
+      "text": "%md\nджоин с насильным бродкастом с таблицей sample_big выпадает с ошибкой, проходит только с таблицей sample\n",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-22T20:16:22+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<p>джоин с насильным бродкастом с таблицей sample_big выпадает с ошибкой, проходит только с таблицей sample</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346573242_793469898",
+      "id": "paragraph_1611346573242_793469898",
+      "dateCreated": "2021-01-22T20:16:13+0000",
+      "dateStarted": "2021-01-22T20:16:22+0000",
+      "dateFinished": "2021-01-22T20:16:22+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23284"
+    },
+    {
+      "title": "Отключение auto broadcast",
+      "text": "%md\n.\n.\n.\n\nОтключить автоматический броадкаст командой spark.conf.set(\"spark.sql.autoBroadcastJoinThreshold\", \"-1\"). Сделать джойн с семплом hw2.sample, сравнить время выполнения запроса.\n",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-22T19:58:03+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": true,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": false,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<p>.\n<br  />.\n<br  />.</p>\n<p>Отключить автоматический броадкаст командой spark.conf.set(&ldquo;spark.sql.autoBroadcastJoinThreshold&rdquo;, &ldquo;-1&rdquo;). Сделать джойн с семплом hw2.sample, сравнить время выполнения запроса.</p>\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_444745146",
+      "id": "20201128-092252_410955057",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "status": "READY",
+      "$$hashKey": "object:23285"
+    },
+    {
+      "text": "spark.conf.set(\"spark.sql.autoBroadcastJoinThreshold\", \"-1\")",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:00:32+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346599113_400092324",
+      "id": "paragraph_1611346599113_400092324",
+      "dateCreated": "2021-01-22T20:16:39+0000",
+      "dateStarted": "2021-01-25T11:03:12+0000",
+      "dateFinished": "2021-01-25T11:03:12+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23286"
+    },
+    {
+      "text": "%pyspark\r\n\r\nevents_full.join(sample, \"event_id\").count()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:00:33+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "55273\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=23",
+              "$$hashKey": "object:24586"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346629252_729794053",
+      "id": "paragraph_1611346629252_729794053",
+      "dateCreated": "2021-01-22T20:17:09+0000",
+      "dateStarted": "2021-01-25T11:03:12+0000",
+      "dateFinished": "2021-01-25T11:06:58+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23287"
+    },
+    {
+      "title": "Вернуть настройку к исходной",
+      "text": "spark.conf.set(\"spark.sql.autoBroadcastJoinThreshold\", \"26214400\")",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:00:38+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "fontSize": 9,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_1291342415",
+      "id": "20201127-230625_1272901030",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T11:04:00+0000",
+      "dateFinished": "2021-01-25T11:04:00+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23288"
+    },
+    {
+      "text": "spark.sql(\"clear cache\")",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:00:39+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "\u001b[1m\u001b[34mres8\u001b[0m: \u001b[1m\u001b[32morg.apache.spark.sql.DataFrame\u001b[0m = []\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483912_1469441999",
+      "id": "20201128-155645_947820002",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T11:04:00+0000",
+      "dateFinished": "2021-01-25T11:04:00+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23289"
+    },
+    {
+      "title": "Задание 4",
+      "text": "%md\n.\n.\n.\n\nВ процессе обработки данных может возникнуть перекос объёма партиций по количеству данных (data skew). В таком случае время выполнения запроса может существенно увеличиться, так как данные распределятся по исполнителям неравномерно. В следующем параграфе происходит инициализация датафрейма, этот параграф нужно выполнить, изменять код нельзя. В задании нужно работать с инициализированным датафреймом.\n\nДатафрейм разделен на 30 партиций по ключу city, который имеет сильно  неравномерное распределение.",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-22T19:58:03+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": true,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<p>.\n<br  />.\n<br  />.</p>\n<p>В процессе обработки данных может возникнуть перекос объёма партиций по количеству данных (data skew). В таком случае время выполнения запроса может существенно увеличиться, так как данные распределятся по исполнителям неравномерно. В следующем параграфе происходит инициализация датафрейма, этот параграф нужно выполнить, изменять код нельзя. В задании нужно работать с инициализированным датафреймом.</p>\n<p>Датафрейм разделен на 30 партиций по ключу city, который имеет сильно  неравномерное распределение.</p>\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483913_1655176560",
+      "id": "20201128-163357_1545019956",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "status": "READY",
+      "$$hashKey": "object:23290"
+    },
+    {
+      "title": "нужно выполнить, изменять код нельзя",
+      "text": "%pyspark \nfrom pyspark.sql.functions import col\n\nskew_df = spark.table(\"hw2.events_full\")\\\n.where(\"date = '2020-11-01'\")\\\n.repartition(30, col(\"city\"))\\\n.cache()\n\nskew_df.count()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:00:42+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "20000000\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=24",
+              "$$hashKey": "object:24638"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483913_393238912",
+      "id": "20201128-162744_575252973",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T11:04:00+0000",
+      "dateFinished": "2021-01-25T11:08:35+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23291"
+    },
+    {
+      "title": "4.1. Наблюдение проблемы",
+      "text": "%md\n.\n.\n.\n\nПосчитать количество event_count различных событий event_id , содержащихся в skew_df с группировкой по городам. Результат упорядочить по event_count.\n\nВ spark ui в разделе jobs выбрать последнюю, в ней зайти в stage, состоящую из 30 тасков (из такого количества партиций состоит skew_df). На странице стейджа нажать кнопку Event Timeline и увидеть время выполнения тасков по экзекьюторам. Одному из них выпала партиция с существенно большим количеством данных. Остальные экзекьюторы в это время бездействуют -- это и является проблемой, которую предлагается решить далее.",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:00:43+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": true,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<p>.<br />\n.<br />\n.</p>\n<p>Посчитать количество event_count различных событий event_id , содержащихся в skew_df с группировкой по городам. Результат упорядочить по event_count.</p>\n<p>В spark ui в разделе jobs выбрать последнюю, в ней зайти в stage, состоящую из 30 тасков (из такого количества партиций состоит skew_df). На странице стейджа нажать кнопку Event Timeline и увидеть время выполнения тасков по экзекьюторам. Одному из них выпала партиция с существенно большим количеством данных. Остальные экзекьюторы в это время бездействуют &ndash; это и является проблемой, которую предлагается решить далее.</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483913_1374388216",
+      "id": "20201128-164139_1371291032",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T11:00:43+0000",
+      "dateFinished": "2021-01-25T11:00:43+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23292"
+    },
+    {
+      "text": "%pyspark\r\n\r\nskew_df.show()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:00:48+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+--------------------+-------------+--------------------+----------+\n|            event_id|         city|            skew_key|      date|\n+--------------------+-------------+--------------------+----------+\n|bfe3a0110ab910ecd...|SMALL_CITY_40|bfe3a0110ab910ecd...|2020-11-01|\n|041b4b5d6d31e2ef5...|SMALL_CITY_66|041b4b5d6d31e2ef5...|2020-11-01|\n|1f8de606bed49ad81...|SMALL_CITY_40|1f8de606bed49ad81...|2020-11-01|\n|c7101d13b9e70cf64...|SMALL_CITY_66|c7101d13b9e70cf64...|2020-11-01|\n|9d1048ee61e725d1b...|SMALL_CITY_66|9d1048ee61e725d1b...|2020-11-01|\n|b66edce4725a0bff1...|SMALL_CITY_66|b66edce4725a0bff1...|2020-11-01|\n|34e2715d5cee2d040...|SMALL_CITY_66|34e2715d5cee2d040...|2020-11-01|\n|f342b95bce10158c1...|SMALL_CITY_66|f342b95bce10158c1...|2020-11-01|\n|c54ba3f0dd1cfd6b0...|SMALL_CITY_66|c54ba3f0dd1cfd6b0...|2020-11-01|\n|773267284db6d0b3f...|SMALL_CITY_66|773267284db6d0b3f...|2020-11-01|\n|e76e02fbf8b49e7a4...|SMALL_CITY_40|e76e02fbf8b49e7a4...|2020-11-01|\n|2e667e7630f87c572...|SMALL_CITY_40|2e667e7630f87c572...|2020-11-01|\n|a781101950165a139...|SMALL_CITY_66|a781101950165a139...|2020-11-01|\n|d585aca3725a4b2d4...|SMALL_CITY_40|d585aca3725a4b2d4...|2020-11-01|\n|61c763d62ad1cd3c0...|SMALL_CITY_66|61c763d62ad1cd3c0...|2020-11-01|\n|fa449415db823c5c2...|SMALL_CITY_66|fa449415db823c5c2...|2020-11-01|\n|cdab2ec39f301acb9...|SMALL_CITY_40|cdab2ec39f301acb9...|2020-11-01|\n|c2a34e07ca458a3e6...|SMALL_CITY_66|c2a34e07ca458a3e6...|2020-11-01|\n|4fc42ad9c2e4af4db...|SMALL_CITY_40|4fc42ad9c2e4af4db...|2020-11-01|\n|3df36d69f47a174ff...|SMALL_CITY_40|3df36d69f47a174ff...|2020-11-01|\n+--------------------+-------------+--------------------+----------+\nonly showing top 20 rows\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=25",
+              "$$hashKey": "object:24667"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346741003_1738021852",
+      "id": "paragraph_1611346741003_1738021852",
+      "dateCreated": "2021-01-22T20:19:01+0000",
+      "dateStarted": "2021-01-25T11:06:58+0000",
+      "dateFinished": "2021-01-25T11:08:35+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23293"
+    },
+    {
+      "text": "%pyspark\n\n\nskew_df\\\n    .groupBy(\"city\")\\\n    .count()\\\n    .orderBy(col(\"count\"))\\\n    .show()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:00:53+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+--------------+-----+\n|          city|count|\n+--------------+-----+\n|SMALL_CITY_100| 9917|\n|  SMALL_CITY_0| 9964|\n| SMALL_CITY_54|19683|\n| SMALL_CITY_39|19695|\n| SMALL_CITY_45|19704|\n| SMALL_CITY_40|19717|\n| SMALL_CITY_14|19732|\n| SMALL_CITY_10|19744|\n| SMALL_CITY_16|19761|\n| SMALL_CITY_50|19768|\n| SMALL_CITY_80|19775|\n| SMALL_CITY_21|19788|\n| SMALL_CITY_58|19790|\n| SMALL_CITY_17|19815|\n| SMALL_CITY_69|19818|\n| SMALL_CITY_84|19825|\n| SMALL_CITY_83|19834|\n| SMALL_CITY_23|19835|\n|  SMALL_CITY_2|19844|\n| SMALL_CITY_74|19852|\n+--------------+-----+\nonly showing top 20 rows\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=26",
+              "$$hashKey": "object:24684"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346760074_152019346",
+      "id": "paragraph_1611346760074_152019346",
+      "dateCreated": "2021-01-22T20:19:20+0000",
+      "dateStarted": "2021-01-25T11:08:35+0000",
+      "dateFinished": "2021-01-25T11:08:43+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23294"
+    },
+    {
+      "text": "%md\nЗашел в Details for Stage, открыл Event Timeline и действительно увидел, что у Task время выполнения 2,9 минут, в то время как у остальных Tasks не превышает 2 секунд.",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-22T20:21:19+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<p>Зашел в Details for Stage, открыл Event Timeline и действительно увидел, что у Task время выполнения 2,9 минут, в то время как у остальных Tasks не превышает 2 секунд.</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346856929_802773535",
+      "id": "paragraph_1611346856929_802773535",
+      "dateCreated": "2021-01-22T20:20:56+0000",
+      "dateStarted": "2021-01-22T20:21:19+0000",
+      "dateFinished": "2021-01-22T20:21:19+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23295"
+    },
+    {
+      "title": "4.2. repartition",
+      "text": "%md\n.\n.\n.\n\nодин из способов решения проблемы агрегации по неравномерно распределенному ключу является предварительное перемешивание данных. Его можно сделать с помощью метода repartition(p_num), где p_num -- количество партиций, на которые будет перемешан исходный датафрейм",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-22T19:58:03+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": true,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<p>.\n<br  />.\n<br  />.</p>\n<p>один из способов решения проблемы агрегации по неравномерно распределенному ключу является предварительное перемешивание данных. Его можно сделать с помощью метода repartition(p_num), где p_num &ndash; количество партиций, на которые будет перемешан исходный датафрейм</p>\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483913_1309402608",
+      "id": "20201128-164814_1641460265",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "status": "READY",
+      "$$hashKey": "object:23296"
+    },
+    {
+      "text": "%pyspark\r\n\r\nskew_df_r = skew_df.repartition(30).cache()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:01:00+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346897306_1937880638",
+      "id": "paragraph_1611346897306_1937880638",
+      "dateCreated": "2021-01-22T20:21:37+0000",
+      "dateStarted": "2021-01-25T11:08:35+0000",
+      "dateFinished": "2021-01-25T11:08:43+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23297"
+    },
+    {
+      "text": "%pyspark\r\n\r\nskew_df_r\\\r\n    .groupBy(\"city\")\\\r\n    .count()\\\r\n    .orderBy(col(\"count\"))\\\r\n    .show()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:01:03+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+--------------+-----+\n|          city|count|\n+--------------+-----+\n|SMALL_CITY_100| 9917|\n|  SMALL_CITY_0| 9964|\n| SMALL_CITY_54|19683|\n| SMALL_CITY_39|19695|\n| SMALL_CITY_45|19704|\n| SMALL_CITY_40|19717|\n| SMALL_CITY_14|19732|\n| SMALL_CITY_10|19744|\n| SMALL_CITY_16|19761|\n| SMALL_CITY_50|19768|\n| SMALL_CITY_80|19775|\n| SMALL_CITY_21|19788|\n| SMALL_CITY_58|19790|\n| SMALL_CITY_17|19815|\n| SMALL_CITY_69|19818|\n| SMALL_CITY_84|19825|\n| SMALL_CITY_83|19834|\n| SMALL_CITY_23|19835|\n|  SMALL_CITY_2|19844|\n| SMALL_CITY_74|19852|\n+--------------+-----+\nonly showing top 20 rows\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4045/jobs/job?id=27",
+              "$$hashKey": "object:24734"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346916288_826131064",
+      "id": "paragraph_1611346916288_826131064",
+      "dateCreated": "2021-01-22T20:21:56+0000",
+      "dateStarted": "2021-01-25T11:08:43+0000",
+      "dateFinished": "2021-01-25T11:10:44+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23298"
+    },
+    {
+      "text": "%md\nпосле перемешивания время распределилось более равномерно",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-22T20:22:35+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<div class=\"markdown-body\">\n<p>после перемешивания время распределилось более равномерно</p>\n\n</div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611346944107_1265003648",
+      "id": "paragraph_1611346944107_1265003648",
+      "dateCreated": "2021-01-22T20:22:24+0000",
+      "dateStarted": "2021-01-22T20:22:35+0000",
+      "dateFinished": "2021-01-22T20:22:35+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23299"
+    },
+    {
+      "title": "4.3. Key Salting",
+      "text": "%md\n.\n.\n.\nДругой способ исправить неравномерность по ключу -- создание синтетического ключа с равномерным распределением. В нашем случае неравномерность исходит от единственного значения city='BIG_CITY', которое часто повторяется в данных и при группировке попадает к одному экзекьютору. В таком случае лучше провести группировку в два этапа по синтетическому ключу CITY_SALT, который принимает значение BIG_CITY_rand (rand -- случайное целое число) для популярного значения BIG_CITY и CITY для остальных значений. На втором этапе восстанавливаем значения CITY и проводим повторную агрегацию, которая не занимает времени, потому что проводится по существенно меньшего размера данным. \n\nТакая же техника применима и к джойнам по неравномерному ключу, см, например https://itnext.io/handling-data-skew-in-apache-spark-9f56343e58e8\n\nЧто нужно реализовать:\n* добавить синтетический ключ\n* группировка по синтетическому ключу\n* восстановление исходного значения\n* группировка по исходной колонке",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-22T19:58:03+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": true,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<p>.\n<br  />.\n<br  />.\n<br  />Другой способ исправить неравномерность по ключу &ndash; создание синтетического ключа с равномерным распределением. В нашем случае неравномерность исходит от единственного значения city='BIG_CITY', которое часто повторяется в данных и при группировке попадает к одному экзекьютору. В таком случае лучше провести группировку в два этапа по синтетическому ключу CITY_SALT, который принимает значение BIG_CITY_rand (rand &ndash; случайное целое число) для популярного значения BIG_CITY и CITY для остальных значений. На втором этапе восстанавливаем значения CITY и проводим повторную агрегацию, которая не занимает времени, потому что проводится по существенно меньшего размера данным.</p>\n<p>Такая же техника применима и к джойнам по неравномерному ключу, см, например https://itnext.io/handling-data-skew-in-apache-spark-9f56343e58e8</p>\n<p>Что нужно реализовать:</p>\n<ul>\n<li>добавить синтетический ключ</li>\n<li>группировка по синтетическому ключу</li>\n<li>восстановление исходного значения</li>\n<li>группировка по исходной колонке</li>\n</ul>\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483913_1081088365",
+      "id": "20201128-173534_1924644474",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "status": "READY",
+      "$$hashKey": "object:23300"
+    },
+    {
+      "text": "%pyspark\nfrom pyspark.sql.functions import monotonically_increasing_id, when, rand, round, expr, lit, sum\n\nsalt_size = 10\n\nskew_df.withColumn(\"salt_index\", round(100 * rand()) )\\\n.withColumn(\"city_salt\", when(col(\"city\") == \"BIG_CITY\", expr(\"CONCAT(city, salt_index)\")).otherwise(col(\"city\")))\\\n.groupBy(\"city_salt\")\\\n.agg(countDistinct(\"event_id\").alias(\"count\"))\\\n.withColumn(\"city\", when(expr(\"city_salt not like 'SMALL%'\"), lit(\"BIG_CITY\")).otherwise(col(\"city_salt\")))\\\n.groupBy(\"city\")\\\n.agg(sum(\"count\").alias(\"count\"))\\\n.orderBy(col(\"count\"), ascending=False)\\\n.show()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:11:16+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Fail to execute line 9: .agg(countDistinct(\"event_id\").alias(\"count\"))\\\nTraceback (most recent call last):\n  File \"/tmp/1611572329853-0/zeppelin_python.py\", line 158, in <module>\n    exec(code, _zcUserQueryNameSpace)\n  File \"<stdin>\", line 9, in <module>\nNameError: name 'countDistinct' is not defined\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611572115394_463012993",
+      "id": "paragraph_1611572115394_463012993",
+      "dateCreated": "2021-01-25T10:55:15+0000",
+      "dateStarted": "2021-01-25T11:11:16+0000",
+      "dateFinished": "2021-01-25T11:11:16+0000",
+      "status": "ERROR",
+      "$$hashKey": "object:23301"
+    },
+    {
+      "text": "spark.stop",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-25T11:11:20+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483913_2085061761",
+      "id": "20201128-174934_1428813475",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "dateStarted": "2021-01-25T11:11:20+0000",
+      "dateFinished": "2021-01-25T11:11:21+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:23302"
+    },
+    {
+      "text": "",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-01-22T19:58:03+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "scala",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/scala",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1611345483913_1950355233",
+      "id": "20201128-175938_2140404686",
+      "dateCreated": "2021-01-22T19:58:03+0000",
+      "status": "READY",
+      "$$hashKey": "object:23303"
+    }
+  ],
+  "name": "350_Koleganov_HW_2",
+  "id": "2FV66B4HW",
+  "defaultInterpreterGroup": "spark",
+  "version": "0.9.0",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "personalizedMode": "false",
+    "isZeppelinNotebookCronEnable": false,
+    "looknfeel": "default"
+  },
+  "info": {
+    "isRunning": false
+  },
+  "path": "/350_Koleganov_HW_2"
+}
