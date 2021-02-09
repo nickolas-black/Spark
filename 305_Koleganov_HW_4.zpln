@@ -1,0 +1,1979 @@
+﻿{
+  "paragraphs": [
+    {
+      "text": "%md\n## Урок 4. Машинное обучение на pySpark на примере линейной регрессии\n* построить распределение статей в датасете по `rating` с `bin_size = 10`\n* написать функцию `ratingToClass(rating: Int): String`, которая определяет категорию статьи (A, B, C, D) на основе рейтинга. Границы для классов подобрать самостоятельно.\n* добавить к датасету категориальную фичу `rating_class`. При добавлении колонки использовать `udf` из функции в предыдущем пункте\n* построить модель логистической регрессии `one vs all` для классификации статей по рассчитанным классам.\n* получить `F1 score` для получившейся модели",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-02-09T14:25:17+0000",
+      "progress": 0,
+      "config": {
+        "tableHide": false,
+        "editorSetting": {
+          "language": "markdown",
+          "editOnDblClick": true,
+          "completionKey": "TAB",
+          "completionSupport": false
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/markdown",
+        "fontSize": 9,
+        "editorHide": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "HTML",
+            "data": "<h2>Урок 4. Машинное обучение на pySpark на примере линейной регрессии</h2>\n<ul>\n<li>построить распределение статей в датасете по <code>rating</code> с <code>bin_size = 10</code></li>\n<li>написать функцию <code>ratingToClass(rating: Int): String</code>, которая определяет категорию статьи (A, B, C, D) на основе рейтинга. Границы для классов подобрать самостоятельно.</li>\n<li>добавить к датасету категориальную фичу <code>rating_class</code>. При добавлении колонки использовать <code>udf</code> из функции в предыдущем пункте</li>\n<li>построить модель логистической регрессии <code>one vs all</code> для классификации статей по рассчитанным классам.</li>\n<li>получить <code>F1 score</code> для получившейся модели</li>\n</ul>\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1612880717201_1705953539",
+      "id": "20201229-184226_1953616112",
+      "dateCreated": "2021-02-09T14:25:17+0000",
+      "status": "READY",
+      "focus": true,
+      "$$hashKey": "object:195711"
+    },
+    {
+      "text": "%pyspark\n\nfrom pyspark.sql.functions import col\nfrom pyspark.sql.types import IntegerType\n\nhabrData = spark.read.option(\"header\", True)\\\n.option(\"inferSchema\", True)\\\n.csv(\"/user/admin/habr_data.csv\")\\\n.withColumn(\"rating\", col(\"rating\").cast(IntegerType()))\\\n.cache()\n\nhabrData.printSchema()",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-02-09T14:25:26+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "root\n |-- link: string (nullable = true)\n |-- title: string (nullable = true)\n |-- published_date: string (nullable = true)\n |-- published_time: string (nullable = true)\n |-- modified_date: string (nullable = true)\n |-- modified_time: string (nullable = true)\n |-- author_type: string (nullable = true)\n |-- author_name: string (nullable = true)\n |-- description: string (nullable = true)\n |-- image: string (nullable = true)\n |-- article_categories: string (nullable = true)\n |-- href_count: integer (nullable = true)\n |-- img_count: integer (nullable = true)\n |-- tags: string (nullable = true)\n |-- h3_count: integer (nullable = true)\n |-- i_count: integer (nullable = true)\n |-- spoiler_count: integer (nullable = true)\n |-- positive_votes: integer (nullable = true)\n |-- negative_votes: string (nullable = true)\n |-- rating: integer (nullable = true)\n |-- bookmarks: integer (nullable = true)\n |-- views: integer (nullable = true)\n |-- comments: double (nullable = true)\n |-- text_len: double (nullable = true)\n |-- lines_count: integer (nullable = true)\n |-- sentences_count: integer (nullable = true)\n |-- first_5_sentences: string (nullable = true)\n |-- last_5_sentences: string (nullable = true)\n |-- max_sentence_len: string (nullable = true)\n |-- min_sentence_len: string (nullable = true)\n |-- mean_sentence_len: string (nullable = true)\n |-- median_sentence_len: string (nullable = true)\n |-- tokens_count: string (nullable = true)\n |-- max_token_len: string (nullable = true)\n |-- mean_token_len: string (nullable = true)\n |-- median_token_len: string (nullable = true)\n |-- alphabetic_tokens_count: string (nullable = true)\n |-- words_count: string (nullable = true)\n |-- words_mean: string (nullable = true)\n |-- ten_most_common_words: string (nullable = true)\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=0",
+              "$$hashKey": "object:196158"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=1",
+              "$$hashKey": "object:196159"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1612880717202_1227495325",
+      "id": "20201229-193439_1097358875",
+      "dateCreated": "2021-02-09T14:25:17+0000",
+      "dateStarted": "2021-02-09T14:25:26+0000",
+      "dateFinished": "2021-02-09T14:29:30+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:195712"
+    },
+    {
+      "text": "%pyspark\n\nz.show(habrData)",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-02-09T14:25:49+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "table",
+              "height": 300,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "link": "string",
+                      "title": "string",
+                      "published_date": "string",
+                      "published_time": "string",
+                      "modified_date": "string",
+                      "modified_time": "string",
+                      "author_type": "string",
+                      "author_name": "string",
+                      "description": "string",
+                      "image": "string",
+                      "article_categories": "string",
+                      "href_count": "string",
+                      "img_count": "string",
+                      "tags": "string",
+                      "h3_count": "string",
+                      "i_count": "string",
+                      "spoiler_count": "string",
+                      "positive_votes": "string",
+                      "negative_votes": "string",
+                      "rating": "string",
+                      "bookmarks": "string",
+                      "views": "string",
+                      "comments": "string",
+                      "text_len": "string",
+                      "lines_count": "string",
+                      "sentences_count": "string",
+                      "first_5_sentences": "string",
+                      "last_5_sentences": "string",
+                      "max_sentence_len": "string",
+                      "min_sentence_len": "string",
+                      "mean_sentence_len": "string",
+                      "median_sentence_len": "string",
+                      "tokens_count": "string",
+                      "max_token_len": "string",
+                      "mean_token_len": "string",
+                      "median_token_len": "string",
+                      "alphabetic_tokens_count": "string",
+                      "words_count": "string",
+                      "words_mean": "string",
+                      "ten_most_common_words": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                }
+              },
+              "commonSetting": {}
+            }
+          }
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "link\ttitle\tpublished_date\tpublished_time\tmodified_date\tmodified_time\tauthor_type\tauthor_name\tdescription\timage\tarticle_categories\thref_count\timg_count\ttags\th3_count\ti_count\tspoiler_count\tpositive_votes\tnegative_votes\trating\tbookmarks\tviews\tcomments\ttext_len\tlines_count\tsentences_count\tfirst_5_sentences\tlast_5_sentences\tmax_sentence_len\tmin_sentence_len\tmean_sentence_len\tmedian_sentence_len\ttokens_count\tmax_token_len\tmean_token_len\tmedian_token_len\talphabetic_tokens_count\twords_count\twords_mean\tten_most_common_words\nhttps://habr.com/ru/post/129837/\tКодовым названием Ubuntu 12.04 будет Precise Pangolin\t2011-10-06\t07:54\t2011-10-06\t07:54\tPerson\tАлександр Андрейко\tМарк Шаттлворт объявил о том, что кодовым названием Ubuntu 12.04 будет Precise Pangolin.  По традиции, кодовое название каждой версии Ubuntu состоит из прилага...\thttps://habrastorage.org/getpro/habr/post_images/89a/5a1/ae2/89a5a1ae239581c0906fed88d5f02177.jpg\th_linux, f_admin\t1\t1\tUbuntu 12.04, Ubuntu, Марк Шаттлворт\t0\t0\t0\t63\t9\t54\t6\t2500\t94.0\t1020.0\t5\t8\tМарк Шаттлворт объявил о том, что кодовым названием Ubuntu 12.04 будет Precise Pangolin. По традиции, кодовое название каждой версии Ubuntu состоит из прилагательного и существительного, начинающегося на одну букву — каждый раз следующую по алфавиту. На этот раз настала очередь буквы «p». Шаттлворт пояснил, что 12.04 будет LTS-версией, то есть версией с длительной поддержкой, поэтому она должна быть надёжной и долговечной, прочной, как скала, и хорошо защищённой. Эта версия будет лицом Ubuntu в течение длительного времени, поэтому в ней не должно быть проблем, она должна быть понятной и аккуратной.\tШаттлворт пояснил, что 12.04 будет LTS-версией, то есть версией с длительной поддержкой, поэтому она должна быть надёжной и долговечной, прочной, как скала, и хорошо защищённой. Эта версия будет лицом Ubuntu в течение длительного времени, поэтому в ней не должно быть проблем, она должна быть понятной и аккуратной. Шаттлворт перечислил более десятка рассматривавшихся названий, но остановился именно на этом, которое можно перевести как «точный панголин». Панголин — или ящер — это чешуйчатое насекомоядное млекопитающее, похожее на броненосца. Шаттлворт рассказал, что недавно провёл несколько часов, наблюдая за панголином в Калахари, и может поручиться за их точность — тот не пропустил ни одного муравейника в долине.\t177\t38\t125.625\t138.5\t174\t17\t4.988505747126437\t5.0\t138\t86\t6.116279069767442\tшаттлворт, ubuntu, поэтому, должна, панголин, марк, объявил, кодовым, названием, precise\nhttps://habr.com/ru/post/341756/\tUnreal Engine: QuickStart в Qt Creator под Arch Linux\t2017-11-07\t01:05\t2017-11-07\t10:40\tPerson\tДмитрий Притыкин\tВведение В марте 2015 года Epic Games повернулась лицом к Open Source сообществу, предоставив бесплатный доступ к своему движку Unreal Engine версии 4 (установив...\thttps://habrastorage.org/webt/cm/h8/-1/cmh8-1rbgt0hztmoilj-lgkkrqm.png\th_linux, h_open_source, h_cpp, h_3d_graphics, h_unreal_engine, f_develop, f_design, f_admin\t14\t9\tunreal engine 4, unrealeditor, qt creator, linux, arch linux, c++, clang, сборка из исходников, ide, никто не читает теги\t0\t0\t0\t18\t1\t17\t65\t10700\t0.0\t12414.0\t136\t59\tВведение В марте 2015 года Epic Games повернулась лицом к Open Source сообществу, предоставив бесплатный доступ к своему движку Unreal Engine версии 4 (установив лимит на прибыль от использования движка в 3000$ за квартал). Более того, еще в 2014 году компания говорила о том, что поддержка свободных операционных систем, в частности Linux, является для неё одной из приоритетных задач. Стоит отметить, что эти слова не стали пустым звуком, и на сегодняшний день движок достаточно уверенно работает в среде Linux. Существует достаточное количество официальной документации, повествующей о том, как установить и настроить движок в среде этой ОС.  Однако, при кажущейся прозрачности процесса развертывания рабочего окружения, существует ряд мелких, но неприятных нюансов, затрудняющих жизнь поклонникам пингвинов. Под катом краткое и вольное описание особенностей установки движка, с которыми столкнулся автор, призванное разрешить некоторые из трудностей, с которыми сталкиваются новички.\tНа заданный нам вопрос отвечаем утвердительно. Движок подумает ещё немного, скомпилирует шейдеры и в конечном итоге мы получаем проект, готовый к работе над упражнением QuickStart из официальной документации. Вместо заключения При правильное настройке проекта возможен следующий фокус. В открытом проекте жмем F10 Ага, наличие исходных текстов движка дает нам возможность не только отлаживать код игры, но и трассировать код самого движка, что иногда требуется для выяснения причин ошибок. В этом Epic Games выглядит намного более дружественнее к свои пользователям, чем некоторые другие конторы, так же предоставляющие свой движок бесплатно\t1350\t2\t207.67796610169492\t134.0\t1941\t124\t5.510046367851623\t5.0\t1286\t1035\t5.7845410628019325\tusers, maisvendoo, ноя, r, движка, сборки, result, движок, link, linux\nhttps://habr.com/ru/company/mobio/blog/341826/\tДенис Литвинов (COO FunCorp): продуктовые метрики для мобильных приложений в США\t2017-11-07\t13:39\t2017-11-07\t13:57\tPerson\tOlga_Kovalieva\tВыступление COO FunCorp, Дениса Литвинова, на конференции по продуктовому маркетингу Epic Growth Conference, которую организовали Mobio и Getloyal при поддержке...\thttps://habr.com/share/publication/341826/8ef7cdcdf08cc4dcf40afc4321451820/\tc_mobio, h_mobile_monetization, h_mobileanalytics, h_tech_events, f_marketing\t7\t0\tmobio, getloyal, epic growth conference, egconf, funcorp, маркетинг, продуктовый маркетинг, продуктовые метрики, монетизация мобильных приложений, мобильные приложения, мобильный маркетинг\t5\t0\t0\t17\t4\t13\t12\t2400\t0.0\t4766.0\t39\t51\tВыступление COO FunCorp, Дениса Литвинова, на конференции по продуктовому маркетингу Epic Growth Conference, которую организовали Mobio и Getloyal при поддержке Appsflyer и myTarget. За 7 лет работы на рынке США FunCorp собрал 100 миллионов пользователей и 4 миллиона DAU в своих мобильных приложениях. В своем выступлении Денис рассказал, на какие продуктовые метрики ориентироваться, чтобы достичь максимальных результатов на американском рынке. Стремительно развивающийся американский мобильный рынок переполнен продуктами и конкуренцией между ними за право быть лучшим. Тысячи разработчиков со всего мира пытаются завоевать рынок США, превращая конкуренцию в настоящую мясорубку.\tОпределиться с аудиторией продукта и иметь четкий план конкуренции с гигантами. Помнить о том, что приложение в сторе не равно сайт в интернете. И правила модерации достаточно жесткие, особенно в США. Полную расшифровку читайте на vc.ru. Подписывайтесь на канал Epic Growth Channel в Telegram, чтобы не пропустить интересный контент по продуктовому маркетингу.\t263\t13\t91.45098039215686\t81.0\t808\t21\t5.0\t5.0\t617\t444\t5.916666666666667\tfuncorp, это, день, сша, метрики, lt, создание, продуктовые, rr, rate\nhttps://habr.com/ru/company/teamlab/blog/341522/\tONLYOFFICE против Collabora: почему мы уверены, что наше решение лучше\t2017-11-07\t15:03\t2017-11-07\t15:48\tPerson\tОлег\tЗдравствуйте! Команда ONLYOFFICE возвращается на Хабр, как мы и обещали. Постараемся писать чаще и больше, и вообще держать вас в курсе событий. В последнее врем...\thttps://habrastorage.org/webt/tk/u9/kh/tku9khme8rxyfeo7fwci_aigpkw.jpeg\tc_teamlab, h_open_source, h_itstandarts, f_develop\t4\t1\tonlyoffice, onlyoffice document editors, open source, open source software, open source projects, collabora, collabora online, libreoffice, open office\t0\t3\t0\t22\t2\t20\t23\t14200\t46.0\t12742.0\t54\t131\tЗдравствуйте! Команда ONLYOFFICE возвращается на Хабр, как мы и обещали. Постараемся писать чаще и больше, и вообще держать вас в курсе событий. В последнее время нам есть что рассказать и показать. Тему первой статьи подсказала нам сама жизнь.\tПо нашему мнению, пока что Collabora — продукт медленный (это решается хорошим интернетом), сырой (но можно доработать), с большим количеством багом (но их, конечно, пофиксят), но самое главное — их архитектура экономически невыгодна и к этому подорожник не приложишь, в то время как ONLYOFFICE можно использовать уже сейчас. Начать можно, например, с нашего решения для интеграции со сторонними облачными сервисами, такими как Nextcloud и ownCloud. P.S. Кстати, мы недавно выпустили редакторы ONLYOFFICE c переработанным интерфейсом, в котором инструменты сгруппированы в тематические вкладки. Это позволило нам облегчить навигацию по инструментам редактора, а ещё сделать видимыми многие важные вещи — например, плагины (про них скоро расскажем отдельно). Как выглядит новый интерфейс и что стало где в этом видео.\t325\t9\t95.74045801526718\t87.0\t2263\t18\t4.771542200618648\t4.0\t1799\t1095\t6.170776255707763\tcollabora, это, onlyoffice, сервере, редактор, всё, нам, например, пользователя, пока\nhttps://habr.com/ru/company/parallels/blog/341800/\tParallels Desktop 13 — семь советов для эффективной работы\t2017-11-07\t11:04\t2017-11-07\t12:34\tPerson\tДмитрий Смиркин\tПо умолчанию в Parallels Desktop 13 выставлены оптимальные настройки для работы. Но, если вы привыкли брать от жизни все, держите несколько советов, как увелич...\thttps://habrastorage.org/webt/ml/0n/ru/ml0nruz-8qxxav00g5djohkek6k.jpeg\tc_parallels, h_virtualization, h_osx_dev, h_win_dev, f_admin, f_develop\t1\t9\tparallels, parallels desktop, it, virtualization, runet, macos, mac\t0\t0\t0\t27\t5\t22\t23\t22400\t18.0\t5210.0\t12\t55\tПо умолчанию в Parallels Desktop 13 выставлены оптимальные настройки для работы. Но, если вы привыкли брать от жизни все, держите несколько советов, как увеличить быстродействие и сохранить заряд батареи вашего Макбука. Совет #0. Не нужно ничего менять. В Parallels Desktop 13 настроен оптимальный режим работы.\tАктивируйте «Режим поездки». Если вам в ближайшее время придется работать от батареи вашего Макбука, рекомендуем активировать «Режим поездки». В этом случае Windows будет работать в энергосберегающем режиме. Кстати, если вам кажется, что наличие виртуальной машины автоматически значительно влияет на заряд батареи, то это не так. Опытным путем установлено, что при обычном времени работы Макбука в 5 часов 9 минут, с запущенной виртуальной машиной в Parallels Desktop он продолжает работать 5 часов ровно. Для того, чтобы постоянно не заходить в Центр управления, вы можете активировать «Режим поездки» щелкнув правой клавишей мыши на значок Parallels Desktop в Dock.\t298\t9\t93.18181818181819\t99.0\t838\t25\t5.347255369928401\t5.0\t659\t462\t6.229437229437229\tparallels, desktop, совет, режим, это, windows, работы, режиме, виртуальной, время\nhttps://habr.com/ru/company/mailru/blog/341822/\tПолное руководство по написанию утилиты для Go\t2017-11-07\t18:34\t2017-11-07\t21:58\tPerson\tМакс\tНекоторое время назад я начал делать утилиту, которая упростила бы мне жизнь. Она называется gomodifytags. Утилита автоматически заполняет поля структурных тего...\thttps://habrastorage.org/webt/ji/t5/ik/jit5ikq3awfpuvm3-0oztkwp3z8.jpeg\tc_mailru, h_open_source, h_analysis_design, h_go, h_build_automation, f_develop\t11\t18\tgo, golang, никто не читает теги\t0\t0\t1\t40\t5\t35\t131\t16300\t9.0\t32756.0\t579\t213\tНекоторое время назад я начал делать утилиту, которая упростила бы мне жизнь. Она называется gomodifytags. Утилита автоматически заполняет поля структурных тегов (struct tag) с помощью имён полей. Пример: Пример использования gomodifytags в vim-go Эта утилита облегчает управление многочисленными полями структуры. Она умеет добавлять и удалять теги, управлять их опциями (например, omitempty), определять правила трансформации (snake_case, camelCase и пр.) и многое другое.\tНачали парсить файл с помощью пакета go/parser, чтобы извлечь ast.Node. Потом искали (проходя вниз по дереву) начальную и конечную позицию для соответствующей структуры, чтобы узнать, какие поля нужно модифицировать. Найдя позиции, снова пошли вниз по ast.Node и переписали каждое поле между начальной и конечной позициями (с помощью пакета structtag). Затем отформатировали переписанный узел в виде либо корректного исходного кода Go, либо JSON для редакторов. Сегодня gomodifytags облегчает жизнь тысячам разработчиков, он успешно используется в нескольких редакторах и плагинах: vim-go  atom  vscode  acme  → Исходный код  Также я подробнее рассказал о своём пакете на конференции Gophercon 2017\t1093\t7\t152.22535211267606\t89.0\t5847\t29\t4.227980160766205\t3.0\t3438\t2699\t5.203408669877732\tif, err, return, nil, структуры, поля, string, func, start, end\nhttps://habr.com/ru/post/341744/\tПростой плагин для локализации приложений на Unity3D\t2017-11-07\t01:11\t2018-07-13\t13:09\tPerson\tАлексей Буравов\tЯ думаю, каждый разработчик на Unity3D рано или поздно сталкивается с необходимостью локализации приложения на несколько языков. В любом случае, лучше заранее за...\thttps://habrastorage.org/webt/1l/zx/2z/1lzx2z1fatk1mhmwvwzkvnqq77m.jpeg\th_gamedev, h_csharp, h_unity, f_develop\t1\t3\tunity, локализация, game, gamedev, plugin, language\t0\t0\t10\t6\t1\t5\t66\t6100\t22.0\t16104.0\t443\t40\tЯ думаю, каждый разработчик на Unity3D рано или поздно сталкивается с необходимостью локализации приложения на несколько языков. В любом случае, лучше заранее заложить это в архитектуру, даже если на старте приложения несколько языков и не требуется. В данной статье я опишу разработку простого плагина для локализации UI Text-компонентов с возможностью динамической смены языка и редактирования текста в редакторе. Для перечисления используемых языков (в статье будем рассматривать русский и английский) будем использовать enum Unity SystemLanguage. К сожалению, насколько мне известно, Unity из коробки не поддерживает сериализацию Dictionary или key-value-pair-классов.\t\"В дальнейшем можно отнаследоваться от MultiLanguageComponent и добавить собственные компоненты для перевода. Репозиторий на GitHub (здесь добавлены некоторые дополнительные функции — экспорт/импорт в csv, компоненты для TextMesh, Image, AudioSource, VideoPlayer, MeshFilter). Полный код Translation.csusing UnityEngine; namespace SimpleLocalizator {  [System.Serializable]  public struct Translation {   public SystemLanguage key;   public string value;   public Translation(SystemLanguage key, string value) {    this.key = key;    this.value = value;   }  } } Label.csusing UnityEngine; using System.Collections.Generic; namespace SimpleLocalizator {  [System.Serializable]  public class Label{   #region Data   [SerializeField] int _id;          [SerializeField] List<Translation> translations = new List<Translation>();          private const string defaultText = \"\"not translated\"\";                 #endregion                #region Interface                 public int id {    get {     return _id;    }    private set {     _id = value;    }    }    public Label(int id) {    this.id = id;    }   public string Get(SystemLanguage language) {           for (int i = 0; i < translations.Count; i++) {                   if (translations[i].key == language) {                           return translations[i].value;                   }           }           translations.Add(new Translation(language\t defaultText));           return translations[translations.Count - 1].value;   }   public void Set(SystemLanguage language\t string str) {            for (int i = 0; i < translations.Count; i++) {                     if (translations[i].key == language){                             translations[i] = new Translation(language\t str);                             return;                     }            }            translations.Add(new Translation(language\t str));   }   #endregion  } } LabelsData.csusing System.Collections.Generic; using UnityEngine; using System.Text; namespace SimpleLocalizator {  [CreateAssetMenu(fileName=\"\"LabelsData\"\"\t menuName=\"\"SimpleLocalizator/LabelsData\"\")]  public class LabelsData : ScriptableObject {   [SerializeField] List<Label> _labels=new List<Label>();   Label _defaultLabel = new Label (-1);   public static Label defaultLabel {    get {     return instance._defaultLabel;    }   }   public static List<Label> labels {    get {     return instance._labels;    }    private set {     instance._labels = value;    }   }   static LabelsData _instance;   public static LabelsData instance {    get {     if (_instance==null) {      _instance = (LabelsData)Resources.Load (\"\"LabelsData\"\");      if (_instance == null) {       _instance = CreateInstance<LabelsData> ();                                         Debug.Log (\"\"LabelsData: loaded instance from resources is null\t created instance\"\");      }     }     return _instance;    }   }  } } LanguageManager.csusing UnityEngine; using System; namespace SimpleLocalizator {  public static class LanguageManager{   #region Data   public static bool autoDetectLanguage=true;   static SystemLanguage _currentLanguage = SystemLanguage.English;      private static bool init = false;   #endregion   #region Interface   public static SystemLanguage currentLanguage {    get {     return _currentLanguage;    }    set {     _currentLanguage = value;     if (onLanguageChanged != null)      onLanguageChanged ();    }   }   public static Action onLanguageChanged;   public static string GetString(int labelID)   {           return GetString(labelID\t currentLanguage);   }          public static string GetString(int labelID\t SystemLanguage language) {                 Init();                 for (int i = 0; i < LabelsData.labels.Count; i++) {                          if (LabelsData.labels[i].id == labelID) {                                  return LabelsData.labels[i].Get(language);                          }                 }                 return LabelsData.defaultLabel.Get(language);          }                 #endregion                #region Methods   static void Init() {          if (!init) {                   init = true;                   if (autoDetectLanguage){                             currentLanguage = Application.systemLanguage;                   }                   else {                             currentLanguage = currentLanguage;                   }                   Debug.Log(\"\"LanguageManager: initialized. Current language: \"\" + currentLanguage);                        }   }   #endregion  } } MultiLanguageComponent.cs  using UnityEngine; namespace SimpleLocalizator {  public abstract class MultiLanguageComponent : MonoBehaviour {   [SerializeField] SystemLanguage _currentLanguage = SystemLanguage.English;   protected SystemLanguage currentLanguage {    get {     return _currentLanguage;    }    set {     _currentLanguage = value;     Refresh ();    }   }   public void OnValidate() {    currentLanguage = _currentLanguage;   }   void OnEnable() {    OnLanguageRefresh ();    LanguageManager.onLanguageChanged += OnLanguageRefresh;   }   void OnDisable() {    LanguageManager.onLanguageChanged -= OnLanguageRefresh;   }   void OnLanguageRefresh() {    currentLanguage = LanguageManager.currentLanguage;   }   protected virtual void Refresh() {   }  } } MultiLanguageTextBase.cs  using UnityEngine; namespace SimpleLocalizator {  public abstract class MultiLanguageTextBase : MultiLanguageComponent{   #region Unity scene settings   [SerializeField] int _labelID;   [SerializeField] bool toUpper=false;   #endregion   #region Interface   public int labelID {    get {     return _labelID;    }    set {     _labelID = value;            Refresh();    }   }         #endregion         #region Methods                 protected override void Refresh() {                         bool local = (Application.isEditor && !Application.isPlaying);                         string str = local ? LanguageManager.GetString(labelID\t currentLanguage) :                          LanguageManager.GetString(labelID);           if (toUpper)                                 str = str.ToUpper();           VisualizeString(str);   }          protected abstract void VisualizeString(string str);  #endregion  } } MultiLanguageTextUI.cs  using UnityEngine; using UnityEngine.UI; namespace SimpleLocalizator {  [RequireComponent(typeof(Text))]  public class MultiLanguageTextUI : MultiLanguageTextBase {   Text _text;   public Text text {    get {     if (_text == null && gameObject!=null)      _text = GetComponent<Text> ();     return _text;    }   }   protected override void VisualizeString(string str)   {       if (text != null)           text.text = str;   }  } }\"\t4137\t2\t398.975\nhttps://habr.com/ru/post/13895/\t69 признаков того, что не вы трахаете проект, а он вас\t2007-09-07\t14:08\t2019-03-11\t18:30\tPerson\tБулат\t1. Ваша компания начала нанимать консультантов, чтобы было кого во всем обвинять 2. Ваш сервер для нагрузочного тестирования упал с ошибкой &laquo;Все, б$%, я больше н...\thttps://habr.com/share/publication/13895/730d455256982f3a05b3f2bb327ea3d8/\th_pm, f_management\t1\t0\tюмор, проект, программисты\t0\t0\t0\t64\t10\t54\t67\t820\t52.0\t5794.0\t70\t92\t\"1. Ваша компания начала нанимать консультантов, чтобы было кого во всем обвинять 2. Ваш сервер для нагрузочного тестирования упал с ошибкой «Все, б$%, я больше не могу!» 3. Ваша системы контроля версий — это набор папок «revision 1», \"\" revision 2\"\"\t: «revision 465» и т. д. на сетевом диске 4. Ваше ТЗ состоит из трех страниц\t написанных за 2 часа перед обеденным перерывом.\"\t67. В отделе QA вас прозвали «Мистер Переполнение Буфера» 68. 90% времени у вас все готово на 90% 69. «А, да, совсем забыл Ммм.., эээ… тебе тоже нужно будет прийти в воскресенье с утра. Спасибо.» Взято тут\t200\t2\t61.94565217391305\t66.0\t1091\t25\t4.522456461961503\t3.0\t750\t508\nhttps://habr.com/ru/post/13880/\tО нехороших контекстных объявлениях\t2007-09-07\t03:00\t2007-09-07\t03:00\tPerson\tЯ идиот, убейте меня кто-нибуд\tМне одному кажется неправильным эта контекстная реклама?.. В голове такие параллели: &rdquo;Будьте добры, полкило фарша. &mdash; Зачем он Вам, покупайте куриные крылышки!&rdquo;.\thttp://habrastorage.org/getpro/habr/olpictures/dfa/260/306/dfa2603062c839c8eab6306546ee6f3a.gif\th_closet, f_popsci\t0\t1\tяндекс.директ, яндекс, контекстная реклама, qip, trillian, реклам\t0\t0\t0\t9\t4\t5\t2\t417\t11.0\t204.0\t3\t4\tМне одному кажется неправильным эта контекстная реклама?.. В голове такие параллели: ”Будьте добры, полкило фарша. — Зачем он Вам, покупайте куриные крылышки!”. Прошу прощения за кулинарные сравнения :)\tМне одному кажется неправильным эта контекстная реклама?.. В голове такие параллели: ”Будьте добры, полкило фарша. — Зачем он Вам, покупайте куриные крылышки!”. Прошу прощения за кулинарные сравнения :)\t58\t41\t49.75\t50.0\t39\t12\t4.487179487179487\t5.0\t26\t20\t5.55\tодному, кажется, неправильным, эта, контекстная, реклама, голове, такие, параллели, будьте\nhttps://habr.com/ru/company/badoo/blog/473654/\tPHP Composer: фиксим зависимости без боли\t2019-11-20\t13:01\t2019-11-20\t19:56\tPerson\tmougrim\tМногие из вас наверняка сталкивались с ситуацией, когда в библиотеке или фреймворке, который вы используете, есть баг или нет необходимой функциональности. Предп...\thttps://habrastorage.org/webt/jv/ys/9h/jvys9h_dh2zmefozo_xhrosiipo.jpeg\tc_badoo, h_open_source, h_php, h_programming, f_develop\t23\t2\tcomposer, composer-patches\t0\t0\t1\t77\t1\t76\t102\t8200\t19.0\t23276.0\t344\t102\tМногие из вас наверняка сталкивались с ситуацией, когда в библиотеке или фреймворке, который вы используете, есть баг или нет необходимой функциональности. Предположим, вы даже не поленились и сформировали pull request. Но примут его далеко не сразу, а следующий релиз продукта вообще может произойти через год. Что же делать, если исправление вам срочно нужно катить в прод? Напрашивается очевидное решение — использовать форк библиотеки или фреймворка. Однако с форками не всё просто.\tТакже я сделал косвенный вывод: если какая-то зависимость не предоставляет необходимый функционал, то, возможно, есть форки, которые реализовали этот функционал и даже больше. В Badoo мы используем Vaimo Composer Patches в двух случаях: в SoftMocks для патчинга PHPUnit и PHP Code Coverage; во внутреннем репозитории для фикса Webmozart Assert для совместимости с SoftMocks как временный фикс (пока SoftMocks не поддерживают конструкции array_map(array('static', 'valueToString')). Ринат Ахмадеев, Sr. PHP Developer UPD1: Спасибо BoShurik за ссылку на алиасы. Добавил пункт про алиасы в статью.\t2623\t9\t226.58823529411765\t104.5\t3521\t77\t5.707185458676513\t4.0\t2207\t1664\t5.7842548076923075\tgit, loading, installing, from, cache, composer, cd, patches, зависимости, for\nhttps://habr.com/ru/company/wrike/blog/475208/\tПереезд в Европу: приключение и выводы\t2019-11-20\t19:21\t2019-11-21\t11:24\tPerson\tIgor Zubov\tПереезд в Европу &mdash; это как приключение, в которое попал Джим Хокинс в книге &laquo;Остров Сокровищ&raquo;. Джим получил колоссальный опыт, много впечатлений, но все происход...\thttps://habrastorage.org/webt/iv/ej/2l/ivej2l96f6vidxolgrfi5s2um2c.png\tc_wrike, h_it_immigration, h_career, h_itcompanies, f_management, f_popsci\t1\t3\tличный опыт, переезд в другую страну\t7\t9\t1\t71\t17\t54\t162\t45900\t699.0\t8724.0\t48\t133\tПереезд в Европу — это как приключение, в которое попал Джим Хокинс в книге «Остров Сокровищ». Джим получил колоссальный опыт, много впечатлений, но все происходило не совсем так, как изначально он себе представлял. В Европе хорошо, но могут возникнуть ситуации, когда ожидания расходятся с реальностью. Хорошая новость в том, что можно заранее подготовиться к этому. Итак, представим, что наш Джимми из России получил оффер на работу в небольшой IT-компании в Берлине.\tДаже не чувствую себя тем, на ком компания зарабатывала опыт, потому что для себя я сделал некоторые выводы: местный язык обязателен к изучению, если бы я начал раньше, то я бы лучше понимал, что происходит вокруг, несмотря на то, что все говорят по-английски; бежать от процессов бесполезно, они одинаковые везде, с такими же недостатками и преимуществами; даже без местного языка начинаешь думать на другом языке, а это очень интересные ощущения; новые города, порты, храмы, вокруг столько всего неизведанного, и это действительно того стоит, и ведь платят еще в пиастрах. Джима не существует. Зато есть те, у кого получилось. Поделитесь хорошими и не самыми хорошими историями о том, как вы или ваши знакомые тоже переезжали работать в другие страны. Для Wrike это особенно актуально, учитывая, что открылся новый офис в Праге.\t574\t2\t64.30075187969925\t60.0\t1679\t16\t4.365098272781418\t4.0\t1303\t784\t5.424744897959184\tджим, это, wrike, джима, английском, джимми, говорят, заметки, экспатов, нужен\nhttps://habr.com/ru/post/476786/\tСертификация систем фото/видеофиксации правонарушений и систем сегмента транспортной безопасности\t2019-11-20\t21:48\t2019-11-21\t12:48\tPerson\tВиталий\tПоследнее время правительство РФ часто поднимает вопросы относительно цифровой экономики, цифровизации и информатизации. Под это выделяются немыслимые бюджеты и...\thttps://habrastorage.org/getpro/habr/post_images/98e/022/141/98e02214182fa5405e6adbd120b57d96.png\th_video_tech, f_popsci\t0\t3\tсертификация, метрология, транспортная безопасность, постановление №969\t0\t0\t0\t6\t1\t5\t19\t2000\t4.0\t11311.0\t52\t52\tПоследнее время правительство РФ часто поднимает вопросы относительно цифровой экономики, цифровизации и информатизации. Под это выделяются немыслимые бюджеты и многие компании и частные лица хотят поучаствовать в этом процессе. Многие при этом хотят предложить сегменту B2G именно стоящие решения, а не стремятся откусить свой кусок от бюджета. Но мораль сей басни такова, что ввиду определенных регламентов, направленных на систематизацию, улучшение качества решений и минимизацию мошеннических схем, реализация решений под текущие требования является очень сложной. Ниже попробуем разобраться почему и что именно вам предстоит пройти, если вы нацелились выйти с промышленным решением в сферу фото/видеофиксации правонарушений или сегмент транспортной безопасности.\tВ Постановлении № 969 подробно прописаны требования к техническим средствам обеспечения транспортной безопасности разных групп — разрешение, цветность, частота кадров систем наблюдения, алгоритмы детекции, стандарты записи, особенности функционирования устройств, устойчивость к условиям окружающей среды и многое другое. Резюме Получение всех вышеописанных документов возможно. И многие компании, работающие на рынке фото/видеофиксации уже позаботились об этом. Новым игрокам придется проходить эту процедуру с нуля и, надеюсь, что предоставленная информация поможет сделать это максимально быстро и с первого раза. Главное, нужно изначально отдавать себе отчет в том, что подобные процедуры занимают от 6 до 12 мес. И важно подготовить полный набор необходимых документов с первого раза, а образец, передаваемые на проверку должен быть технически исправным и проверенным заранее (чаще всего ошибки и потеря времени возникают именно из-за таких «мелочей»).\t1180\t26\t215.80769230769232\t174.0\t1563\t19\t6.34932821497121\t6.0\t1273\t985\t7.245685279187818\tсредств, технических, транспортной, безопасности, сертификации, обеспечения, сертификат, систем, соответствия, заявителя\nhttps://habr.com/ru/company/dodopizzadev/blog/476520/\tВластелин прода в царстве legacy-кода (сказочка с открытым концом)\t2019-11-20\t18:07\t2019-11-25\t18:18\tPerson\tОлеся Балашова\tНедавно наш разработчик сочинил IT-сказку по мотивам одной ну очень известной эпопеи. Финал он дописать так и не успел: конец спринта, хотфикс-откат хотфикса, са...\thttps://habrastorage.org/webt/dj/fh/jt/djfhjt_iizvwyxxfi4f48jtda0s.png\tc_dodopizzadev, h_zadachki, f_develop\t7\t3\tdodopizza, dodo is, dodo pizza engineering, прод, prod, fairy tale, конкурс, истории\t0\t27\t21\t18\t5\t13\t17\t4000\t16.0\t22676.0\t152\t233\tНедавно наш разработчик сочинил IT-сказку по мотивам одной ну очень известной эпопеи. Финал он дописать так и не успел: конец спринта, хотфикс-откат хотфикса, сами понимаете. Теперь мы запускаем конкурс на Хабре, чтобы узнать, чем же всё закончилось. Конкурс на лучший айтишный хэппи или анхэппи энд Как участвовать и что делать: выбери, на какой стороне ты – светлой или тёмной, придумай свою версию концовки сказки, результаты своего творчества присылай в комментарии, собирай плюсы и жди окончания конкурса. Самая заплюсованная концовка получит приз: крутую толстовку «Вжух, и всё работает!».\tАвтор: Сергей Рубанов, chico на Хабре, chicoxyzzy в Твиттере (BeerJS) Вдруг Фёдор Сумкин проснулся в холодном поту и всплакнул. Ему утром на работу, на sharepoint говнокодить… Автор: Ильшат Гарифуллин (ePayments Technologies) Вдруг послышалась знакомая мелодия, звук становился громче. Пришёл успешный респонс на запрос о завершении сна, и я проснулся. Автор: Елена Решетова (Тинькофф) Перед ними появилась пицца, они её съели, постигли дзен и переписали весь код за одну ночь, а на утро уехали на месяц в отпуск на Канары. Автор: Аннушка из Контура\t366\t6\t95.59656652360515\t82.0\t4086\t32\t4.687714145863926\t4.0\t3220\t2232\t5.398297491039426\tэто, гэндальф, автор, всё, фродо, гэндальфа, команда, джунов, ещё, никто\nhttps://habr.com/ru/company/intel/blog/476514/\tIntel oneAPI — один за всех, теперь — и для вас\t2019-11-20\t14:47\t2019-12-12\t13:37\tPerson\tВиктор Гурылев\tИтак, случилось то, о чем еще с июля месяца говорила компания Intel &mdash; вышла бета-версия Intel oneAPI Toolkits, набора инструментов для разработки, с которыми жиз...\thttps://habrastorage.org/webt/gn/1o/jp/gn1ojp-eqdn4ctqgqqimloydwt8.png\tc_intel, h_hi, h_programming, f_develop\t23\t1\tIntel oneAPI\t0\t0\t0\t10\t0\t10\t37\t4200\t3.0\t3600.0\t27\t21\tИтак, случилось то, о чем еще с июля месяца говорила компания Intel — вышла бета-версия Intel oneAPI Toolkits, набора инструментов для разработки, с которыми жизнь больше не будет прежней. В состав набора, как и обещалось, вошел компилятор нового языка Data Parallel C++, набор библиотек для API-программирования и комплект средств для анализа и отладки приложений. Под катом — обо всем этом более подробно. И да, тулкит уже можно скачивать, ставить и пробовать — ссылки в конце статьи. А можно пробовать, но не скачивать — есть и такой вариант, о нем тоже расскажу.\tСреди них: Intel oneAPI HPC Toolkit Intel oneAPI IoT Toolkit Intel oneAPI Rendering Toolkit Intel oneAPI DL Framework Developer Toolkit Все виды Intel oneAPI уже сейчас доступны для скачивания в виде дистрибутивов для Linux и Windows с сайта Intel. А можно ничего не скачивать, а воспользоваться песочницей Intel DevCloud for oneAPI Projects — облачным сервисом с предварительно настроенной средой и установленными всеми компонентами oneAPI. Intel предоставляет бесплатный доступ разработчикам к DevCloud на 120 дней. Intel oneAPI — это большая и интересная тема, мы намерены не раз еще к ней вернуться. P.S. Если в эту пятницу, 22 ноября 2019 года после полудня вам где-нибудь встретится довольный сотрудник компании Intel в Нижнем Новгороде, то знайте — он не прогуливает работу, а наслаждается заслуженным отдыхом — отмечает выход oneAPI beta, в котором работники нижегородского сайта приняли большое участие.\t400\t41\t169.23809523809524\t151.0\t579\t20\t5.293609671848014\t5.0\t473\t338\t6.322485207100592\tintel, oneapi, library, toolkit, набора, data, всем, скачивать, архитектуры, входит\nhttps://habr.com/ru/company/jugru/blog/476624/\tQuality pipelines в мобильной разработке, часть 1: Android\t2019-11-20\t11:36\t2019-11-20\t11:45\tPerson\tВладимир Иванов\tфото с Unsplash по запросу &quot;pipeline&quot; Общий подход Привет! Я начинаю серию постов о пайплайнах в разработке и не только, которые помогают удостовериться в качес...\thttps://habrastorage.org/webt/sq/py/ho/sqpyhopyvs0j1usjqu4ftlxu4pa.jpeg\tc_jugru, c_epam_systems, h_android_dev, h_mobile_testing, f_develop\t26\t8\tandroid, lint, sonarqube, whoreadsthetags\t0\t0\t0\t21\t0\t21\t38\t4300\t0.0\t9423.0\t54\t77\t\"фото с Unsplash по запросу \"\"pipeline\"\" Общий подход Привет! Я начинаю серию постов о пайплайнах в разработке и не только\t которые помогают удостовериться в качестве разрабатываемых мобильных приложений. Главная идея в том\t чтобы осветить все подходы к мобильной разработке\t актуальные сейчас: нативную разработку для Android и iOS\t React Native\t Xamarin и Flutter. Я начну с Android\t но сначала хотел бы дать общее представление\t о чём это всё. Имейте в виду\t что это общий обзор инструментов и практик\t способных пригодиться вам в процессе разработки Android-приложений\t а не туториал по настройке этих инструментов.\"\tКоманда должна исправить проблему немедленно, потому что она нарушает вашу практику continuous delivery и не даёт команде писать качественный код. И удачи в улучшении своего кода! Если вам понравилась эта статья, подписывайтесь на меня в Твиттере, чтобы не пропустить следующие. А если вы в декабре будете в Москве или можете приехать, приходите на нашу конференцию Mobius и узнайте много другого о разработке для Android (и iOS)! P.S. Спасибо vixentael за подходы к вопросам безопасности, Алексею Никитину за ревью и комментарии, Александру Баканову за пруфридинг.\t409\t16\nhttps://habr.com/ru/post/476756/\tПревращая FunC в FunCtional с помощью Haskell: как Serokell победили в Telegram Blockchain Competition\t2019-11-20\t18:32\t2019-11-21\t08:44\tPerson\tArseniy Seroka\tВы наверняка слышали о том, что Telegram собирается запустить блокчейн-платформу Ton. Но вы могли пропустить новость, что не так давно Telegram объявил конкурс н...\thttps://habr.com/share/publication/476756/30b8374fe742ab6db187ec462d4cc06d/\th_programming, h_algorithms, h_haskell, h_funcprog, h_distributed_systems, f_develop, f_admin\t21\t0\thaskell, telegram, blockchain, ton, dsl, contest\t2\t0\t0\t15\t0\t15\t19\t2600\t6.0\t14130.0\t143\t93\tВы наверняка слышали о том, что Telegram собирается запустить блокчейн-платформу Ton. Но вы могли пропустить новость, что не так давно Telegram объявил конкурс на реализацию одного или нескольких смарт-контрактов для этой платформы. Команда Serokell с богатым опытом разработки крупных блокчейн проектов не могла остаться в стороне. Мы делегировали на конкурс пятерых сотрудников, а уже через две недели они заняли в нем первое место под (не)скромным рандомным ником Sexy Chameleon. В этой статье я расскажу о том, как им это удалось.\tИм удалось построить сложную, красивую, и самое главное, работающую систему. TON показал себя как платформа, имеющая большой потенциал. Однако для того, чтобы эта экосистема развивалась, нужно сделать еще очень много, как с точки зрения ее использования в блокчейн проектах, так и с точки зрения совершенствования инструментов разработки. Мы гордимся тем, что теперь являемся частью этого процесса. Если после прочтения этой статьи у вас остались какие-то вопросы или появились идеи о том, как применить TON для решения ваших задач, напишите нам — мы с радостью поделимся опытом.\t1803\t40\t150.5268817204301\t130.0\t2337\t29\t5.123662815575524\t4.0\t1795\t1279\t6.163408913213448\tton, fift, publickey, slice, это, tvm, язык, stacktype, cnt, время\nhttps://habr.com/ru/company/JetBrains/blog/476370/\tОфициальный сайт JetBrains теперь доступен на русском языке\t2019-11-20\t13:48\t2019-11-26\t17:18\tPerson\tОксана Мандрыка\tКак технологическая компания, мы в JetBrains стараемся поддерживать самые популярные языки и технологии программирования. А как международная компания, мы хотим,...\thttps://habrastorage.org/webt/ej/je/xc/ejjexcp8b4zo38r5qpurxn7_jvq.png\tc_JetBrains, h_localization, f_management\t9\t1\tjetbrains, localization\t0\t1\t0\t17\t3\t14\t11\t5300\t42.0\t1080.0\t5\t11\tКак технологическая компания, мы в JetBrains стараемся поддерживать самые популярные языки и технологии программирования. А как международная компания, мы хотим, чтобы представители разных культур, говорящие на разных языках, могли легко получить информацию о продуктах JetBrains. Все-таки выбор подходящего инструмента для разработки или командной работы — дело ответственное, и хорошо, когда можно почитать о нем на родном языке. У нас много русскоязычных пользователей по всему миру, да и российский рынок исторически нам близок, поэтому русский — один из первых языков, для которых мы сделали локализацию. Помимо русского и английского, jetbrains.com сейчас доступен на испанском, упрощенном китайском, корейском, немецком, французском и японском языках.\tПереключить язык можно внизу страницы. Мы будем очень благодарны за ваши отзывы, они помогут нам сделать сайт лучше. Справа на каждой странице есть кнопка обратной связи: выделите область на экране и оставьте комментарий. Или напишите нам здесь. Ваша команда JetBrains The Drive to Develop\t177\t23\t96.54545454545455\t104.0\t176\t16\t5.25\t5.0\t145\t100\t6.06\tjetbrains, нам, компания, разных, языках, технологическая, стараемся, поддерживать, самые, популярные\nhttps://habr.com/ru/company/funcorp/blog/475968/\tИнтересные новинки Vue 3\t2019-11-20\t10:46\t2019-11-20\t21:15\tPerson\tДмитрий Татаринцев\tВместо предисловия Vue используется во всех проектах FunCorp. Мы внимательно следим за развитием фреймворка, постоянно улучшаем процесс разработки и внедряем луч...\thttps://habrastorage.org/webt/ta/6z/aq/ta6zaqz4kxyqh_wh0zoo4zayqeo.png\tc_funcorp, h_webdev, h_javascript, h_programming, h_vuejs, f_develop\t6\t1\tvue, javascript, composition\t0\t0\t0\t38\t1\t37\t111\t16500\t62.0\t14766.0\t240\t118\tВместо предисловия Vue используется во всех проектах FunCorp. Мы внимательно следим за развитием фреймворка, постоянно улучшаем процесс разработки и внедряем лучшие практики. И, конечно же, мы не могли пройти мимо и не перевести статью Филиппа Раковски, сооснователя VueStorefront, про новые фичи Vue 3, серьёзно влияющие на написание кода. В прошлый раз мы рассматривали фичи, которые влияют на производительность Vue 3. Нам уже известно, что приложения, написанные на новой версии фреймворка, работают очень быстро, но производительность — не самое важное изменение.\tРезюме Рядом со значительным нововведением — Composition API — мы можем найти несколько улучшений поменьше. Очевидно, что Vue движется в сторону улучшения опыта разработчика, к упрощению и интуитивизации API. Так же круто видеть, что команда Vue решила добавить в ядро фреймворка много идей, которые уже реализованы в сторонних библиотеках. Список выше содержит только наиболее важные улучшения и изменения API. Если вам захотелось узнать и о других, загляните в репозиторий RFC.\t498\t19\t123.3135593220339\t101.5\t2639\t26\t4.70481242895036\t4.0\t1796\t1281\t6.007806401249024\tvue, api, это, count, increment, помощью, composition, компонента, использовать, double\nhttps://habr.com/ru/company/habr_career/blog/476712/\tСервис для случайных встреч с незнакомцами, но не дейтинг. История стартапа Random Coffee\t2019-11-20\t17:02\t2019-11-25\t13:29\tPerson\tАртем Малышев\tНесколько лет назад в ИТ индустрии стала популярна инициатива Random Coffee (иногда слитно, иногда с хэштегом). Суть в том, что людям из разных команд, департа...\thttps://habrastorage.org/webt/qz/y7/in/qzy7inm-97mxqal6euftqm4aa8i.png\tc_habr_career, h_startuprise, h_productpm, h_career, h_interviews, f_management, f_popsci\t2\t3\trandom coffee, мой круг, как организовать стартап\t0\t0\t0\t26\t4\t22\t42\t7400\t9.0\t12012.0\t37\t114\tНесколько лет назад в ИТ индустрии стала популярна инициатива Random Coffee (иногда слитно, иногда с хэштегом). Суть в том, что людям из разных команд, департаментов и компаний рандомно назначаются встречи за чашкой кофе — просто поговорить о чем угодно. Это помогает выбраться из своего «пузыря», когда забываешь, что за пределами узкого круга коллег и друзей на самом деле есть целый мир, полный разных людей. А в ИТ давно существует свое негласное «Правило 34» — если существует идея, значит ее давно оформили в продукт и уже развивают стартап. Константин Шубин и Павел Козлов вместе работали в Яндексе, увидели там подобную инициативу, взяли идею на вооружение и решили сделать из этого самостоятельный бизнес.\tЯ могу сколько угодно переписываться в группах про продукты или про дизайн или еще что-то но выйти в оффлайн и обсудить лицом к лицу — это совершенно другой уровень общения. Это новая искренность. Ты снова понимаешь, что такое общаться оффлайн, понимаешь реакцию человека, который сидит перед тобой, видишь, что ему интересно. Это очень базовые человеческие вещи, которые мы почему-то начали забывать». Сайт Random Coffee random-coffee.ru\t325\t22\t104.0\t94.5\t2164\t19\t4.698243992606285\t4.0\t1730\t1112\t5.571043165467626\tэто, random, coffee, павел, константин, который, очень, поэтому, говорит, просто\nhttps://habr.com/ru/company/Voximplant/blog/476452/\tХранилище key-value, или как наши приложения стали удобнее\t2019-11-20\t12:00\t2019-11-28\t14:19\tPerson\tnvpushkarskiy2\tТот, кто разрабатывает на Voximplant, знает о концепции &laquo;приложений&raquo;, которые связывают друг с другом облачные сценарии, телефонные номера, пользователей, прав...\thttps://habrastorage.org/webt/sb/ul/gz/sbulgzjezfjb-fcb3l4hbycxvmi.jpeg\tc_Voximplant, h_javascript, h_programming, h_data_warehouse, f_develop, f_admin\t8\t2\tvoximplant, key-value, key-value storage\t0\t0\t0\t27\t3\t24\t62\t4600\t0.0\t4161.0\t48\t28\tТот, кто разрабатывает на Voximplant, знает о концепции «приложений», которые связывают друг с другом облачные сценарии, телефонные номера, пользователей, правила и очереди звонков. Проще говоря, приложения – это краеугольный камень разработки на нашей платформе, входная точка в любое решение на основе Voximplant, так как именно с создания приложения все и начинается. Раньше приложения «не помнили» ни действия, что выполняют сценарии, ни результаты вычислений, так что разработчики были вынуждены сохранять значения в сторонних сервисах или на своем бэкенде. Если вы когда-либо работали с local storage в браузере, то наша новая функциональность весьма похожа на это, т.к. позволяет приложениям запоминать пары «ключ-значение», которые уникальны для каждого приложения в вашем аккаунте. Работа хранилища стала возможна благодаря новому модулю ApplicationStorage – под катом вас ждет краткое руководство по его использованию, welcome!\tЭта пара логин-пароль понадобятся нам для аутентификации в вебфоне. Проверяем Откройте вебфон по ссылке phone.voximplant.com и залогиньтесь, используя имя аккаунта, название приложения и пару логин-пароль пользователя из приложения. После успешного входа введите любой набор символов в поле ввода и нажмите Call. Если все было сделано правильно, то вы услышите синтезированное приветствие! Желаем вам отличной разработки на Voximplant и следите за новостями – их у нас будет еще много ;)\t717\t16\t146.78571428571428\t107.0\t711\t27\t4.90154711673699\t4.0\t450\t319\t5.858934169278997\tприложения, r, voximplant, сценарий, await, значение, приложение, нажмите, создать, try\nhttps://habr.com/ru/company/pult/blog/476718/\tИстория народного радиоприёмника: Муссолини из “Сельского радио” и тёплые лампы Йозефа Геббельса\t2019-11-20\t16:15\t2019-11-22\t09:05\tPerson\tSound_cULT\tПродолжая историческую серию постов, захотелось рассказать об одной из самых ярких страниц в массовом производстве звуковой электроники &mdash; концепции &ldquo;народного ра...\thttps://habrastorage.org/webt/-r/v8/az/-rv8az9ajbjed2xiuafd64htvuw.jpeg\tc_pult, h_electronics, h_antikvariat, h_sound, f_develop, f_popsci\t10\t22\tзвук, радио, радиозсвязь, приёмник, народный приёмник, рейх, лампы, народное радио, италия, третий рейх, старое железо, аудио, схемотехника, история, история аудио, фашисты, телефункен, германия, немецкая электроника, пропаганда, агитация, теплый ламповый звук, ТЛЗ\t3\t4\t0\t44\t0\t44\t39\t11200\t29.0\t14477.0\t53\t98\tПродолжая историческую серию постов, захотелось рассказать об одной из самых ярких страниц в массовом производстве звуковой электроники — концепции “народного радиоприемника”. Из истории автоиндустрии многие помнят “народный автомобиль”, под которым, как правило, понимают одноимённый Volkswagen Käfer. Так вот, его предшественником был именно “народный радиоприёмник”. Я надеюсь, что одиозность политических режимов, при содействии которых реализовывались описанные ниже проекты, никак не повлияют на оценку инженерных и технологических решений. Если бы сегодня осуществлялся некий аналогичный проект, то это, вероятно, был бы “народный смартфон”.\tНаша традиционная реклама: В нашем каталоге нет «народных радиприёмников», но есть множество современной электроники, которая не промывает ваши мозги, а позволяет самостоятельно выбирать контент. У нас вы без труда найдёте акустические системы, наушники, усилители, саундбары, и другие полезные устройства. В ассортименте тёплые лампы, винил и прочие радости для любителей техноархаики. Не забыли мы и про холодные транзисторы и совсем морозные цифровые устройства. Использован фотоконтент и изображения: www.syracuse.com/vintage/2018/10/why_did_upstate_ny_women_send_their_wedding_rings_to_benito_mussolini_in_1936.html engineering-ru.livejournal.com/475322.html www.marcomanfredini.it/radio/visualizzadocumenti.php?contenuto=165&quale=64 www.radiomuseum.org/r/telefunken_radio_rurale.html radiorurale.it/radio/?p=1735 little-histories.org/2016/03/24/svd-9 sassdelestrie.webnode.it/fatti-e-opinioni/la-radio-rurale antiqueradio.org/KleinempfaengerDKE38.htm\t491\t23\t145.79591836734693\t143.0\t2169\t115\t5.797602581834947\t5.0\t1731\t1272\t6.491352201257862\tрадио, народного, народный, это, германии, также, италии, муссолини, устройство, приёмник\nhttps://habr.com/ru/company/jetinfosystems/blog/476478/\tЭтапы внедрения моделей машинного обучения на крупных предприятиях\t2019-11-20\t14:10\t2019-11-20\t14:57\tPerson\tНиколай Князев\tНа форуме RAIF 2019, который состоялся в Сколково в рамках &laquo;Открытых Инноваций&raquo;, я рассказывал о том, как происходит внедрение моделей машинного обучения. В св...\thttps://habrastorage.org/webt/wb/x4/_i/wbx4_iac90t5k420wxw_w92rx8y.jpeg\tc_jetinfosystems, h_machine_learning, h_dev_management, f_develop, f_management\t0\t8\tмашинное обучение, внедрение, производство, ML, математические модели\t0\t0\t0\t17\t3\t14\t53\t5500\t3.0\t8962.0\t54\t89\tНа форуме RAIF 2019, который состоялся в Сколково в рамках «Открытых Инноваций», я рассказывал о том, как происходит внедрение моделей машинного обучения. В связи с особенностями профессии я каждую неделю несколько дней провожу на производствах, занимаясь внедрением моделей машинного обучения, а остальное время – разработкой этих моделей. Этот пост — запись доклада, в котором я постарался обобщить свой опыт. Начнем с описания процесса крупными мазками, постепенно вдаваясь в детали каждого этапа. Рассчитываем ли мы на оптимизацию производства по результатам полноценного обследования (в идеале), или происходит просто сбор идей, «лоскутная оптимизация», — результатом так или иначе становится формирование списка инициатив.\tТут важны: Стратегии управления моделями и реакции на прогнозы — немного саморекламы: мы в «Инфосистемы Джет» как раз много думали об этом и разработали свою систему JET GALATEA. Человеческий фактор — основные проблемы модели часто связаны с ее использованием, или вмешательством человека, которое модель не могла предусмотреть. Регулярный разбор работы с профессионалами из области — вряд ли удастся все свести к одному числу, которое будет указывать, что нужно дорабатывать, нужно будет разбирать каждый сомнительный прогноз или рекомендацию. Будьте готовы освоить еще одну профессию, чтобы говорить на одном языке с технологами и операторами устройств на производстве. Автор: Николай Князев, руководитель группы машинного обучения «Инфосистемы Джет»\t316\t9\t98.73033707865169\t85.0\t1485\t20\t5.142760942760943\t5.0\t1186\t802\t6.006234413965087\tмодель, данные, нужно, модели, обучение, это, машинное, внедрение, должны, которые\nhttps://habr.com/ru/post/158811/\tКурс лекций «Стартап». Питер Тиль. Стенфорд 2012. Занятие 5\t2012-11-15\t18:55\t2015-01-21\t05:29\tPerson\tАртур Заяц\tЭтой весной, Питер Тиль (Peter Thiel), один из основателей PayPal и первый инвестор FaceBook, провел курс в Стенфорде &mdash; &laquo;Стартап&raquo;. Перед началом Тиль заявил: &laquo;Е...\thttp://habrastorage.org/getpro/habr/post_images/6cf/e64/bf1/6cfe64bf1ae2d2c61bac729698a8f2ed.jpg\th_research, f_management\t26\t2\tстартап, питер тиль, стенфорд, paypal, Стивен Коэн, Макс Левчин, команда, корпоративная культура\t0\t2\t0\t38\t1\t37\t348\t56400\t9.0\t36218.0\t97\t443\tЭтой весной, Питер Тиль (Peter Thiel), один из основателей PayPal и первый инвестор FaceBook, провел курс в Стенфорде — «Стартап». Перед началом Тиль заявил: «Если я сделаю свою работу правильно, это будет последний предмет, который вам придется изучать». Один из студентов лекции записывал и выложил транскипт. В данном хабратопике 9e9names переводит пятое занятие. Редактор Astropilot) Занятие 1: Вызов будущего Занятие 2: Снова как в 1999?\tОт переводчика: Прошу ошибки перевода и орфографические слать в личку. Так же напомню, что данный текст — перевод, его содержание авторское, и авторское мнение может не совпадать с моим. Еще раз повторю, что переводил 9e9names. Редактор Astropilot. Все благодарности им.\t311\t6\t80.5981941309255\t71.0\t6369\t29\t4.84722876432721\t4.0\t5127\t3266\t5.7382118799755055\tэто, должны, люди, paypal, занятие, которые, очень, однако, компании, самом\nhttps://habr.com/ru/post/234051/\tИнтервью с демосценером — Smash ^ Fairlight\t2014-10-14\t13:07\t2014-10-19\t02:02\tPerson\tАндрей Шевченко\tВ этот раз у нас интервью со Smash из группы Fairlight, который участвует в жизни демосцены достаточно давно, и хорошо известен как один из лучших кодеров. Он де...\thttp://habrastorage.org/files/e2a/4b6/3de/e2a4b63de33e4d8cbb745878bd508cb5.png\th_demoscene, f_popsci\t28\t7\tdemoscene, интервью\t0\t1\t0\t18\t0\t18\t28\t4000\t3.0\t32508.0\t93\t297\tВ этот раз у нас интервью со Smash из группы Fairlight, который участвует в жизни демосцены достаточно давно, и хорошо известен как один из лучших кодеров. Он делает крайне разносторонние демо — сентиментально попсовые с великолепной графикой, но знали ли вы, что Смэш начинал как музыкант? Также в интервью он расскажет, как создавались его лучшие работы, поделится секретами популярности его дем, и тем, как он пишет код для своих шедевров. Для начала, расскажи коротко о себе? Меня зовут Matt Swoboda, я также известен на демосцене как Smash.\t\"Спасибо, тебе Смэш, за терпение и внимание! Если вы хотите узнать больше о том, что думает и делает Смэш, можете почитать его блог \"\"direct to video\"\" и демографию Fairlight на pouet.net. Также детали и технологии создания демо вы найдете на Displayhack. Не забывайте и про AssemblyTV где можно найти работы не только Fairlight\t но и других не менее титулованных демогрупп. Спасибо за то что прочитали все это.\"\t369\t8\t108.08754208754209\t96.0\t5934\t31\t4.62453656892484\t4.0\t4783\t2924\t5.403898768809849\nhttps://habr.com/ru/post/187316/\tСтартап WigWag создаёт среду для программирования умного дома на JavaScript\t2013-07-21\t17:01\t2013-07-21\t17:02\tPerson\tИлья Сименко\tСегодня разные производители предлагают десятки разных (и часто несовместимых между собой) систем, устройств, приложений и интерфейсов для превращения обычного д...\thttps://habrastorage.org/storage2/4be/bdd/f2f/4bebddf2f53731ba241f53275d9307d2.png\th_javascript, f_develop\t3\t1\tWigWag, DeviceJS, умный дом, сенсоры, интернет вещей\t0\t0\t0\t41\t7\t34\t235\t21400\t22.0\t3280.0\t12\t17\tСегодня разные производители предлагают десятки разных (и часто несовместимых между собой) систем, устройств, приложений и интерфейсов для превращения обычного дома или квартиры в «умный» — интеллектуальные дверные замки и лампочки с управлением по WiFi, розетки, датчики и выключатели с аккаунтом в Твиттере, интернет-холодильники кондиционеры. Стартап WigWag, который уже собрал на Кикстартере почти в четыре раза больше денег, чем планировал, подошел к вопросу создания умного дома более системно. Они предлагают не просто набор сенсоров и актуаторов, но и целую инфраструктуру, совместимую со множеством уже существующих интеллектуальных электроприборов, и, что ещё важнее — открытую для модификаций и дружелюбную как к простым пользователям, так и к программистам и хакерам. WigWag позволяет создавать «правила», подобные рецептам IFTTT, которые могут на основе информации с датчиков или из интернета управлять любыми устройствами. Это могут быть датчики и актуаторы WigWag, интернет-сервисы, Raspberry Pi, Arduino, Belkin WeMo, Philips Hue, и любые другие, поддерживающие протоколы IP, RS-232, 6loWPAN, Bluetooth и Zigbee.\t\"Вот примерный список того, что может WigWag: Облачные сервисы WigWag позволяют управлять устройствами из любой точки планеты через веб-интерфейс. При этом на локальном уровне система может работать без доступа к интернету — базовая станция будет выполнять все заданные правила для присоединённых к ней устройств без помощи облака. Среда DeviceJS будет построена на базе Node.js и V8. API DeviceJS будет построен по образу и подобию привычных большинству веб-программистов библиотек, таких как JQuery или d3.js. Вот так может выглядеть вызов API для включения красного света на кухне: dev$.byLocation(\"\"kitchen\"\").setColor(\"\"red\"\");  А вот включение света в коридоре при срабатывании детектора движения: dev$.byDeviceAlias('hallway-sensor').trigger('motion'\t function() {     dev$.byLocation('hallway').setOn(); }); Кроме готовых компонентов\t WigWag предлагает платы для самостоятельного создания совместимых устройств на базе Arduino и Raspberry Pi.\"\t434\t52\t190.88235294117646\t155.0\t539\t21\t5.263450834879406\t5.0\t406\t283\nhttps://habr.com/ru/post/417167/\tЗапускаем LDA в реальном мире. Подробное руководство\t2018-07-14\t10:35\t2018-07-14\t14:21\tPerson\tМоисеев Арсений\tПредисловие На просторах интернета имеется множество туториалов объясняющих принцип работы LDA(Latent Dirichlet Allocation &mdash; Латентное размещение Дирихле) и то,...\thttps://habrastorage.org/getpro/habr/formulas/232/c5e/7ef/232c5e7ef52b893e7e827f3ccaac94d2.svg\th_python, h_programming, h_data_mining, h_machine_learning, h_artificial_intelligence, f_develop, f_popsci\t16\t8\tnlp, python, lda, vkontakte api, тематическое моделирование, data science\t3\t0\t0\t11\t1\t10\t61\t8200\t3.0\t20757.0\t320\t111\t\"Предисловие На просторах интернета имеется множество туториалов объясняющих принцип работы LDA(Latent Dirichlet Allocation — Латентное размещение Дирихле) и то, как применять его на практике. Примеры обучения LDA часто демонстрируются на \"\"образцовых\"\" датасетах\t например \"\"20 newsgroups dataset\"\"\t который есть в sklearn. Особенностью обучения на примере \"\"образцовых\"\" датасетов является то\t что данные там всегда в порядке и удобно сложены в одном месте. При обучении продакшн моделей\t на данных\t полученных прямиком из реальных источников все обычно наоборот: Много выбросов. Неправильная разметка(если она есть).\"\tГде-то на 2-3 поколении моделей, с подобным способом отбора стопвордов, для топ-5% широкораспространенных топ-слов распределений мы получаем: ['любой', 'полностью', 'правильно', 'легко', 'следующий', 'интернет', 'небольшой', 'способ', 'сложно', 'настроение', 'столько', 'набор', 'вариант', 'название', 'речь', 'программа', 'конкурс', 'музыка', 'цель', 'фильм', 'цена', 'игра', 'система', 'играть', 'компания', 'приятно'] Еще приложения Первое, что приходит в голову конкретно мне — это использовать распределения тем в тексте как 'эмбеддинги' текстов, в такой интерпретации можно применять к ним алгоритмы визуализации или кластеризации, и искать уже итоговые 'эффективные ' тематические кластеры таким образом. Проделаем это: term_doc_matrix = count_vect.transform(names) embeddings = lda.transform(term_doc_matrix) kmeans = KMeans(n_clusters=30) clust_labels = kmeans.fit_predict(embeddings) clust_centers = kmeans.cluster_centers_ embeddings_to_tsne = np.concatenate((embeddings,clust_centers), axis=0) tSNE =  TSNE(n_components=2, perplexity=15) tsne_embeddings = tSNE.fit_transform(embeddings_to_tsne) tsne_embeddings, centroids_embeddings = np.split(tsne_embeddings, [len(clust_labels)], axis=0) На выходе, мы получим следующего вида картинку: Крестики — это центры тяжести(cenroids) кластеров. На изображении tSNE ембеддингов, видно, что кластеры выделенные с помощью KMeans, образуют достаточно связные и чаще всего пространственно разделимые между собой множества. Все остальное, up to you. Ссылка на весь код: https://gitlab.com/Mozes/VK_LDA\t1358\t16\t184.4954954954955\t125.0\t3620\t69\t4.722099447513812\nhttps://habr.com/ru/company/pvs-studio/blog/260755/\tКак команда PVS-Studio улучшила код Unreal Engine\t2015-06-20\t15:34\t2015-06-20\t19:31\tPerson\tСвятослав\tНаша компания создаёт, продвигает и продаёт статический анализатор кода PVS-Studio для C/C++ программистов. Однако, наше взаимодействие с клиентами не ограничива...\thttps://habrastorage.org/getpro/habr/post_images/9f9/b32/bd4/9f9b32bd48eac393913819d51ae4f80c.png\tc_pvs-studio, h_programming, h_cpp, h_gamedev, h_unreal_engine, f_develop\t13\t7\tunreal engine, unreal engine 4, pvs-studio, c++, си++, обзор кода, PVS-Studio Standalone, game development\t2\t1\t0\t82\t7\t75\t74\t34800\t19.0\t27077.0\t347\t229\tНаша компания создаёт, продвигает и продаёт статический анализатор кода PVS-Studio для C/C++ программистов. Однако, наше взаимодействие с клиентами не ограничивается исключительно продажей им лицензий на продукт PVS-Studio. Например, мы занимаемся некоторыми контрактными работами. В силу NDA обычно рассказать о них мы не можем, да и интересного рассказа не получится. Названия проектов, в которых мы принимаем участие, тоже ничего не скажут большинству наших читателей.\tОна будет замедляться и это надо учитывать при расчёте, сколько ещё осталось до конца правок. Максимальная польза от статического анализа может быть получена только при его регулярном использовании. Спасибо всем, кто прочитал эту статью и желаем всем безбажного кода. С уважением, разработчики анализатора PVS-Studio. И сейчас самое время его скачать и попробовать на своём проекте.\t724\t10\t116.83406113537117\t94.0\t4493\t40\t5.060983752503895\t4.0\t3010\t2209\t6.186057039384337\tunreal, engine, the, ошибки, это, if, кода, код, of, анализатор\nhttps://habr.com/ru/post/82885/\tОдин фаервол для IPv4 и IPv6 (iptables и ip6tables)\t2010-02-02\t18:24\t2013-12-26\t19:11\tPerson\tgribozavr\tПосле настройки IPv6 появляется задача настройки фаервола для нового протокола. Ниже я предлагаю свой скрипт, который позволяет настроить фаервол сразу для IPv4...\thttps://habr.com/share/publication/82885/4caa21e834200859cc0d1f471590f1e9/\th_linux, h_sys_admin, h_ipv6, f_admin\t3\t0\tIPv4, IPv6, Linux, iptables, ip6tables, Netfilter\t0\t0\t0\t5\t1\t4\t28\t10100\t8.0\t16216.0\t405\t11\tПосле настройки IPv6 появляется задача настройки фаервола для нового протокола. Ниже я предлагаю свой скрипт, который позволяет настроить фаервол сразу для IPv4 и IPv6. Хотя общих правил для обоих фаерволов получилось не так уж и много, мне всё-таки удобнее править один общий файл, чем два разных. Рассматривать будем самую обычную сеть с одним подключением к интернету и одной локальной сетью за фаерволом. Для локальной сети в IPv4 нужно сделать NAT, в IPv6 нужно маршрутизировать и фильтровать пакеты.\t\"Особых пояснений не привожу, нужно просто исправить несколько переменных в начале и несколько «таблиц» в середине. #!/bin/bash<br> # License: GPL3<br> # Author: Dmitri Gribenko <gribozavr@gmail.com><br> <br> LAN_IF=\"\"eth0\"\"<br> INET_IF=\"\"eth1\"\"<br> INET_IP=\"\"192.0.2.123\"\"<br> INET6_IF=\"\"he-ipv6\"\"<br> <br> # for dynamic IPs:<br> # INET_IP=$(get_ip_ipv4 $INET_IF)<br> <br> LOOPBACK_IF=\"\"lo\"\"<br> <br> IPTABLES=\"\"/sbin/iptables\"\"<br> IP6TABLES=\"\"/sbin/ip6tables\"\"<br> #IPTABLES=\"\"echo 4\"\"<br> #IP6TABLES=\"\"echo 6\"\"<br> IP=\"\"/sbin/ip\"\"<br> <br> # IPs that need to be NAT'ed to our $INET_IP.<br> NAT_IPV4='<br> 192.168.1.3  pc1<br> 192.168.1.4  pc2<br> 192.168.1.5<br> '<br> <br> # Set to 0 to disable updating IPv4 or IPv6 firewall.<br> DO_IPV4=\"\"1\"\"<br> DO_IPV6=\"\"1\"\"<br> <br> function get_ip_ipv4<br> {<br>   $IP addr show dev $1 primary | sed -n -e '/^\\s*inet / s/^\\s*inet \\(. *\\)\\/.\\{1\t2\\} . *$/\\1/ p'<br> }<br> <br> ipt4()<br> {<br>   [ \"\"$DO_IPV4\"\" = \"\"1\"\" ] && $IPTABLES \"\"$@\"\"<br> }<br> <br> ipt6()<br> {<br>   [ \"\"$DO_IPV6\"\" = \"\"1\"\" ] && $IP6TABLES \"\"$@\"\"<br> }<br> <br> ipt46()<br> {<br>   ipt4 \"\"$@\"\"<br>   ipt6 \"\"$@\"\"<br> }<br> <br> ##############################################################################<br> ################################ filter table ################################<br> ##############################################################################<br> <br> ipt46 -t filter -P INPUT   ACCEPT<br> ipt46 -t filter -P OUTPUT  ACCEPT<br> ipt46 -t filter -P FORWARD ACCEPT<br> <br> ipt46 -t filter -F<br> ipt46 -t filter -X<br> <br> FILTER_CHAINS46=\"\"bad_tcp inet_input inet_output inet_banned_input inet_banned_output inet_tcp_input inet_tcp_output inet_udp_input inet_udp_output\"\"<br> for i in $FILTER_CHAINS46; do<br>   ipt46 -t filter -N $i<br>   ipt46 -t filter -F $i<br> done<br> <br> FILTER_CHAINS4=\"\"inet_icmp_input inet_icmp_output\"\"<br> for i in $FILTER_CHAINS4; do<br>   ipt4  -t filter -N $i<br>   ipt4  -t filter -F $i<br> done<br> <br> FILTER_CHAINS6=\"\"inet_icmpv6_input inet_icmpv6_output inet_icmpv6_forward\"\"<br> for i in $FILTER_CHAINS6; do<br>   ipt6  -t filter -N $i<br>   ipt6  -t filter -F $i<br> done<br> <br> #################################<br> ## filter -- INPUT<br> ##<br> <br> # allow ipv6 in ipv4<br> ipt4  -t filter -A INPUT -p ipv6 -j ACCEPT<br> <br> ipt46 -t filter -A INPUT -i $LOOPBACK_IF -j ACCEPT<br> ipt46 -t filter -A INPUT -i $LAN_IF      -j ACCEPT<br> ipt4  -t filter -A INPUT -i $INET_IF     -j inet_input<br> ipt6  -t filter -A INPUT -i $INET6_IF    -j inet_input<br> <br> #ipt46 -t filter -A INPUT -m limit --limit 3/minute --limit-burst 3 -j LOG --log-level INFO --log-prefix \"\"IPT INPUT packet died: \"\"<br> #ipt46 -t filter -A INPUT -j LOG --log-level INFO --log-prefix \"\"IPT INPUT packet died: \"\"<br> ipt46 -t filter -A INPUT -j DROP<br> <br> #################################<br> ## filter -- OUTPUT<br> ##<br> <br> ipt46 -t filter -A OUTPUT -o $LOOPBACK_IF -j ACCEPT<br> ipt46 -t filter -A OUTPUT -o $LAN_IF      -j ACCEPT<br> ipt4  -t filter -A OUTPUT -o $INET_IF     -j inet_output<br> ipt6  -t filter -A OUTPUT -o $INET6_IF    -j inet_output<br> <br> #ipt46 -t filter -A OUTPUT -j LOG --log-level INFO --log-prefix \"\"IPT OUTPUT: \"\"<br> ipt46 -t filter -A OUTPUT -j ACCEPT<br> <br> #################################<br> ## filter -- bad_tcp<br> ##<br> <br> ipt46 -t filter -A bad_tcp -p tcp -m state --state NEW ! --syn -j DROP<br> ipt46 -t filter -A bad_tcp        -m state --state INVALID -j DROP<br> <br> ipt46 -t filter -A bad_tcp -j RETURN<br> <br> ################################<br> ## filter -- inet_input<br> ##<br> <br> # filter out bad packets so they don't even reach other checks<br> ipt46 -t filter -A inet_input        -j inet_banned_input<br> ipt46 -t filter -A inet_input -p tcp -j bad_tcp<br> <br> ipt46 -t filter -A inet_input -m state --state ESTABLISHED\tRELATED -j ACCEPT<br> <br> ipt46 -t filter -A inet_input -p tcp    -j inet_tcp_input<br> ipt46 -t filter -A inet_input -p udp    -j inet_udp_input<br> ipt4  -t filter -A inet_input -p icmp   -j inet_icmp_input<br> ipt6  -t filter -A inet_input -p icmpv6 -j inet_icmpv6_input<br> ipt4  -t filter -A inet_input -p igmp   -j ACCEPT<br> <br> ipt46 -t filter -A inet_input -j RETURN<br> <br> ################################<br> ## filter -- inet_output<br> ##<br> <br> ipt46 -t filter -A inet_output -j inet_banned_output<br> <br> # allow established -- fast path<br> ipt46 -t filter -A inet_output -m state --state ESTABLISHED\tRELATED -j ACCEPT<br> <br> ipt46 -t filter -A inet_output -p tcp    -j inet_tcp_output<br> ipt46 -t filter -A inet_output -p udp    -j inet_udp_output<br> ipt4  -t filter -A inet_output -p icmp   -j inet_icmp_output<br> ipt6  -t filter -A inet_output -p icmpv6 -j inet_icmpv6_output<br> ipt4  -t filter -A inet_output -p igmp   -j ACCEPT<br> <br> ipt46 -t filter -A inet_output -j RETURN<br> <br> #################################<br> ## filter -- inet_banned_input\t inet_banned_output<br> ##<br> <br> # Drop packets from private\t local and reserved addresses.<br> # You can add 10.0.0.0/8 if your ISP doesn't use it.<br> # You can also add 224.0.0.0/4 if you don't use multicast.<br> for ip in 172.16.0.0/12 192.168.0.0/16 127.0.0.0/8 240.0.0.0/5; do<br>   ipt4  -t filter -A inet_banned_input   -s $ip -j DROP<br>   ipt4  -t filter -A inet_banned_output  -d $ip -j REJECT --reject-with icmp-admin-prohibited<br> done<br> <br> if [ -e /etc/firewall/inet_banned4 ]; then<br>   while read ext_ip; do<br>     ipt4  -t filter -A inet_banned_input  -s $ext_ip -j DROP<br>     ipt4  -t filter -A inet_banned_output -d $ext_ip -j REJECT --reject-with icmp-admin-prohibited<br>   done < /etc/firewall/inet_banned4<br> fi<br> <br> if [ -e /etc/firewall/inet_banned6 ]; then<br>   while read ext_ip; do<br>     ipt6  -t filter -A inet_banned_input  -s $ext_ip -j DROP<br>     ipt6  -t filter -A inet_banned_output -d $ext_ip -j REJECT --reject-with adm-prohibited<br>   done < /etc/firewall/inet_banned6<br> fi<br> <br> ipt46 -t filter -A inet_banned_input  -j RETURN<br> ipt46 -t filter -A inet_banned_output -j RETURN<br> <br> #################################<br> ## filter -- inet_tcp_input<br> ##<br> <br> while read proto port comment; do<br>   if [ -n \"\"$proto\"\" ]; then<br>     $proto -t filter -A inet_tcp_input -p tcp --dport $port -j ACCEPT<br>   fi<br> done <<__EOF__<br> ipt46 20          ftp-data<br> ipt46 21          ftp<br> ipt46 12500:13000 ftp-data<br> <br> ipt46 22          ssh<br> __EOF__<br> <br> # drop all MS stuff so that it won't clutter logs<br> ipt46 -t filter -A inet_tcp_input -p tcp -m multiport --ports 137\t138\t139\t445 -j DROP<br> <br> ipt46 -t filter -A inet_tcp_input -j RETURN<br> <br> #################################<br> ## filter -- inet_tcp_output<br> ##<br> <br> # drop all MS stuff so that it won't clutter logs<br> ipt46 -t filter -A inet_tcp_output -p tcp -m multiport --ports 137\t138\t139\t445 -j DROP<br> <br> ipt46 -t filter -A inet_tcp_output -j RETURN<br> <br> #################################<br> ## filter -- inet_udp_input<br> ##<br> <br> # iptv<br> ipt4  -t filter -A inet_udp_input -p udp -d 224.0.0.0/4 -j ACCEPT<br> <br> # drop all MS stuff so that it won't clutter logs<br> ipt46 -t filter -A inet_udp_input -p udp -m multiport --ports 137\t138\nhttps://habr.com/ru/post/82864/\tИнтерфейс Google Tablet\t2010-02-02\t16:02\t2010-02-02\t16:02\tPerson\tАнатолий Ализар\tНа официальном сайте Chromium опубликованы фотографии, как будет выглядеть интерфейс Chrome OS на планшетах.    Автором изображений является Глен Мёрфи (Glen Mur...\thttp://lh6.ggpht.com/_U1u9AXFhiA0/S2ghzLnx_-I/AAAAAAAADPo/oSgCfTRk5v8/s800/chromeos1.jpg\th_itcompanies, f_popsci\t2\t7\tGoogle Chrome, Chrome OS, Chromium, Google Tablet\t0\t0\t0\t77\t21\t56\t12\t524\t214.0\t220.0\t3\t3\tНа официальном сайте Chromium опубликованы фотографии, как будет выглядеть интерфейс Chrome OS на планшетах. Автором изображений является Глен Мёрфи (Glen Murphy), дизайнер Google Chrome. via TechCrunch\tНа официальном сайте Chromium опубликованы фотографии, как будет выглядеть интерфейс Chrome OS на планшетах. Автором изображений является Глен Мёрфи (Glen Murphy), дизайнер Google Chrome. via TechCrunch\t108\t14\t66.66666666666667\t78.0\t32\t12\t5.53125\t5.5\t26\t22\t6.363636363636363\tchrome, официальном, сайте, chromium, опубликованы, фотографии, выглядеть, интерфейс, os, планшетах\nhttps://habr.com/ru/post/345158/\tПростая объектная СУБД\t2017-12-20\t14:59\t2017-12-20\t14:59\tPerson\tvdbms\tВ рамках одного проекта была поставлена задача долговременного хранения логически связанных объектов данных с обеспечением многопользовательского доступа к их со...\thttps://image.ibb.co/fk6ec6/Odb_02.png\th_programming, h_analysis_design, h_algorithms, f_develop\t0\t4\tбазы данных, объектная СУБД, архитектура системы\t23\t29\t0\t16\t0\t16\t68\t9200\t18.0\t30323.0\t115\t229\tВ рамках одного проекта была поставлена задача долговременного хранения логически связанных объектов данных с обеспечением многопользовательского доступа к их содержимому. Возможны различные способы удовлетворения этой потребности средствами уже существующих систем управления данными. Тем не менее, был предпринят поиск простого и производительного решения, результаты которого и предлагаются к рассмотрению. В данной статье рассматривается общая логика управления данными, без погружения в детали программной реализации, зачастую самоочевидные. По условиям задачи система управления объектной базой данных, а точнее та ее часть, которая отвечает за многопользовательский доступ, оперирует однородным множеством изолированных объектов.\tРезюме Вариант реализации, доведенный до примитивизма, вероятнее всего окажется самым эффективным и производительным. Хотя в этом вопросе мнения могут и разделиться. Объектное представление данных выглядит более естественным, чем табличное. Упрощение внутренней идентификации обеспечивает «шаговую» доступность объектов, и сулит определенный профит при реализации их логической связи. Материал публикуется с надеждой, что будет полезен всем, кто интересуется архитектурой баз данных.\t353\t29\t130.9650655021834\t123.0\t4474\t22\t5.901877514528386\t6.0\t3760\t2825\t6.322477876106195\tобъектов, объекта, данных, транзакции, состояния, памяти, сессии, базы, объекты, объект"
+          },
+          {
+            "type": "HTML",
+            "data": "<div class=\"result-alert alert-warning\" role=\"alert\"><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button><strong>Output is truncated</strong> to 102400 bytes. Learn more about <strong>ZEPPELIN_INTERPRETER_OUTPUT_LIMIT</strong></div>"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=2",
+              "$$hashKey": "object:196267"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1612880717202_28898265",
+      "id": "20210119-061454_1579004540",
+      "dateCreated": "2021-02-09T14:25:17+0000",
+      "dateStarted": "2021-02-09T14:25:56+0000",
+      "dateFinished": "2021-02-09T14:29:33+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:195713"
+    },
+    {
+      "text": "%pyspark\n\nz.show(\n    habrData.orderBy(col(\"rating\")).groupBy(\"rating\").count().select(\"rating\", \"count\")\n)",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-02-09T14:25:55+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "multiBarChart",
+              "height": 300,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "rating": "string",
+                      "count": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                },
+                "multiBarChart": {
+                  "rotate": {
+                    "degree": "-45"
+                  },
+                  "xLabelStatus": "default"
+                }
+              },
+              "commonSetting": {},
+              "keys": [
+                {
+                  "name": "rating",
+                  "index": 0,
+                  "aggr": "sum"
+                }
+              ],
+              "groups": [],
+              "values": [
+                {
+                  "name": "count",
+                  "index": 1,
+                  "aggr": "sum"
+                }
+              ]
+            },
+            "helium": {}
+          }
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "rating\tcount\n0\t181\nnull\t2\n1\t284\n2\t275\n3\t342\n4\t348\n5\t379\n6\t395\n7\t352\n8\t338\n9\t354\n10\t383\n11\t342\n12\t303\n13\t295\n14\t257\n15\t284\n16\t266\n17\t248\n18\t251\n19\t203\n20\t217\n21\t174\n22\t155\n23\t171\n24\t157\n25\t169\n26\t155\n27\t154\n28\t143\n29\t118\n30\t107\n31\t91\n32\t108\n33\t122\n34\t91\n35\t78\n36\t79\n37\t96\n38\t87\n39\t64\n40\t65\n41\t72\n42\t50\n43\t54\n44\t41\n45\t48\n46\t49\n47\t34\n48\t34\n49\t36\n50\t42\n51\t47\n52\t43\n53\t38\n54\t41\n55\t30\n56\t35\n57\t20\n58\t27\n59\t40\n60\t29\n61\t21\n62\t17\n63\t25\n64\t24\n65\t33\n66\t23\n67\t25\n68\t30\n69\t15\n70\t19\n71\t19\n72\t23\n73\t21\n74\t17\n75\t24\n76\t17\n77\t18\n78\t9\n79\t15\n80\t15\n81\t9\n82\t16\n83\t21\n84\t14\n85\t12\n86\t13\n87\t9\n88\t11\n89\t9\n90\t8\n91\t6\n92\t13\n93\t12\n94\t15\n95\t6\n96\t5\n97\t5\n98\t10\n99\t8\n100\t10\n101\t10\n102\t4\n103\t4\n104\t9\n105\t9\n106\t15\n107\t4\n108\t9\n109\t6\n110\t4\n111\t5\n112\t6\n113\t5\n114\t6\n115\t4\n116\t6\n117\t6\n118\t6\n119\t8\n120\t5\n121\t5\n122\t5\n123\t6\n124\t5\n125\t4\n126\t7\n127\t4\n128\t3\n129\t5\n130\t5\n131\t3\n132\t5\n133\t3\n134\t7\n135\t3\n136\t4\n137\t4\n138\t2\n139\t2\n140\t3\n141\t1\n142\t6\n143\t4\n144\t5\n145\t6\n146\t1\n147\t3\n149\t6\n150\t4\n151\t3\n152\t1\n153\t2\n154\t2\n155\t3\n156\t2\n157\t8\n158\t6\n159\t2\n160\t3\n161\t3\n162\t3\n163\t4\n164\t1\n165\t2\n166\t1\n167\t3\n168\t6\n169\t2\n170\t2\n171\t2\n172\t3\n173\t1\n174\t4\n176\t2\n177\t4\n178\t1\n180\t1\n181\t1\n182\t2\n183\t2\n186\t2\n187\t3\n188\t1\n189\t3\n191\t1\n192\t2\n193\t2\n195\t2\n196\t2\n198\t1\n199\t2\n200\t2\n201\t1\n203\t3\n204\t3\n205\t1\n206\t1\n207\t1\n208\t2\n209\t1\n210\t1\n213\t1\n214\t1\n216\t1\n220\t1\n221\t1\n222\t2\n223\t1\n225\t1\n226\t1\n227\t1\n228\t2\n229\t1\n233\t2\n239\t3\n241\t2\n242\t1\n244\t1\n246\t1\n254\t1\n257\t1\n262\t1\n263\t3\n265\t3\n267\t2\n270\t1\n272\t1\n273\t1\n274\t1\n275\t1\n291\t1\n296\t1\n301\t1\n305\t1\n307\t1\n309\t1\n312\t1\n317\t1\n323\t1\n328\t1\n330\t1\n333\t1\n342\t1\n345\t1\n348\t1\n353\t1\n362\t1\n363\t1\n365\t1\n372\t1\n424\t1\n426\t1\n445\t1\n455\t1\n466\t1\n481\t1\n505\t1\n542\t1\n627\t1\n674\t1\n791\t1\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=3",
+              "$$hashKey": "object:196365"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=4",
+              "$$hashKey": "object:196366"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=5",
+              "$$hashKey": "object:196367"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=6",
+              "$$hashKey": "object:196368"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=7",
+              "$$hashKey": "object:196369"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=8",
+              "$$hashKey": "object:196370"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1612880717213_900632212",
+      "id": "20210119-061524_432280912",
+      "dateCreated": "2021-02-09T14:25:17+0000",
+      "dateStarted": "2021-02-09T14:29:31+0000",
+      "dateFinished": "2021-02-09T14:29:39+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:195714"
+    },
+    {
+      "title": "Распределение статей по rating с bin_size = 10",
+      "text": "%pyspark\n\nfrom pyspark.sql.functions import round\n\nz.show(\n    habrData\\\n        .withColumn(\"rating_10\", round(col(\"rating\") / 10) * 10)\\\n        .orderBy(\"rating_10\")\\\n        .groupBy(\"rating_10\")\\\n        .count()\\\n        .select(\"rating_10\", \"count\")\\\n        .where(col(\"rating_10\").isNotNull())\n)\n",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-02-09T14:25:59+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "title": true,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "multiBarChart",
+              "height": 300,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "rating_10": "string",
+                      "count": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                },
+                "multiBarChart": {
+                  "rotate": {
+                    "degree": "-45"
+                  },
+                  "xLabelStatus": "default"
+                }
+              },
+              "commonSetting": {},
+              "keys": [
+                {
+                  "name": "rating_10",
+                  "index": 0,
+                  "aggr": "sum"
+                }
+              ],
+              "groups": [],
+              "values": [
+                {
+                  "name": "count",
+                  "index": 1,
+                  "aggr": "sum"
+                }
+              ]
+            },
+            "helium": {}
+          }
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "rating_10\tcount\n0.0\t1430\n10.0\t3398\n20.0\t2126\n30.0\t1258\n40.0\t686\n50.0\t412\n60.0\t268\n70.0\t225\n80.0\t158\n90.0\t108\n100.0\t71\n110.0\t69\n120.0\t56\n130.0\t46\n140.0\t34\n150.0\t28\n160.0\t35\n170.0\t26\n180.0\t13\n190.0\t14\n200.0\t16\n210.0\t9\n220.0\t6\n230.0\t8\n240.0\t7\n250.0\t2\n260.0\t5\n270.0\t9\n280.0\t1\n290.0\t1\n300.0\t2\n310.0\t4\n320.0\t2\n330.0\t3\n340.0\t1\n350.0\t3\n360.0\t2\n370.0\t2\n420.0\t1\n430.0\t1\n450.0\t1\n460.0\t1\n470.0\t1\n480.0\t1\n510.0\t1\n540.0\t1\n630.0\t1\n670.0\t1\n790.0\t1\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=9",
+              "$$hashKey": "object:196488"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=10",
+              "$$hashKey": "object:196489"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=11",
+              "$$hashKey": "object:196490"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=12",
+              "$$hashKey": "object:196491"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=13",
+              "$$hashKey": "object:196492"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1612880717213_375056624",
+      "id": "20210119-061547_1505088516",
+      "dateCreated": "2021-02-09T14:25:17+0000",
+      "dateStarted": "2021-02-09T14:29:33+0000",
+      "dateFinished": "2021-02-09T14:30:33+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:195715"
+    },
+    {
+      "title": "Добавляем к датасету категориальную фичу rating_class",
+      "text": "%pyspark\nfrom pyspark.sql.functions import udf, col\n\ndef ratingToClass(rating):\n    article_class = '1'\n    if rating > 40: \n        article_class = '4'\n    elif rating > 20:\n        article_class = '3'\n    elif rating >=10:\n        article_class = '2'\n    elif rating >= 0:\n        article_class = '1'\n        \n    return article_class\n    \nrating_class = udf(ratingToClass)\n\nhabrDataWithClass = habrData.withColumn(\"class\", rating_class(col(\"rating\")))\n\nhabrDataWithClass.select(\"title\", \"rating\", \"class\").show(20, False)",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-02-09T14:26:03+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 6,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "+------------------------------------------------------------------------------------------------------+------+-----+\n|title                                                                                                 |rating|class|\n+------------------------------------------------------------------------------------------------------+------+-----+\n|Кодовым названием Ubuntu 12.04 будет Precise Pangolin                                                 |54    |4    |\n|Unreal Engine: QuickStart в Qt Creator под Arch Linux                                                 |17    |2    |\n|Денис Литвинов (COO FunCorp): продуктовые метрики для мобильных приложений в США                      |13    |2    |\n|ONLYOFFICE против Collabora: почему мы уверены, что наше решение лучше                                |20    |2    |\n|Parallels Desktop 13 — семь советов для эффективной работы                                            |22    |3    |\n|Полное руководство по написанию утилиты для Go                                                        |35    |3    |\n|Простой плагин для локализации приложений на Unity3D                                                  |5     |1    |\n|69 признаков того, что не вы трахаете проект, а он вас                                                |54    |4    |\n|О нехороших контекстных объявлениях                                                                   |5     |1    |\n|PHP Composer: фиксим зависимости без боли                                                             |76    |4    |\n|Переезд в Европу: приключение и выводы                                                                |54    |4    |\n|Сертификация систем фото/видеофиксации правонарушений и систем сегмента транспортной безопасности     |5     |1    |\n|Властелин прода в царстве legacy-кода (сказочка с открытым концом)                                    |13    |2    |\n|Intel oneAPI — один за всех, теперь — и для вас                                                       |10    |2    |\n|Quality pipelines в мобильной разработке, часть 1: Android                                            |21    |3    |\n|Превращая FunC в FunCtional с помощью Haskell: как Serokell победили в Telegram Blockchain Competition|15    |2    |\n|Официальный сайт JetBrains теперь доступен на русском языке                                           |14    |2    |\n|Интересные новинки Vue 3                                                                              |37    |3    |\n|Сервис для случайных встреч с незнакомцами, но не дейтинг. История стартапа Random Coffee             |22    |3    |\n|Хранилище key-value, или как наши приложения стали удобнее                                            |24    |3    |\n+------------------------------------------------------------------------------------------------------+------+-----+\nonly showing top 20 rows\n\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=14",
+              "$$hashKey": "object:196566"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1612880717213_237740889",
+      "id": "20210119-033727_1223441151",
+      "dateCreated": "2021-02-09T14:25:17+0000",
+      "dateStarted": "2021-02-09T14:29:39+0000",
+      "dateFinished": "2021-02-09T14:30:33+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:195716"
+    },
+    {
+      "text": "%pyspark\n\nz.show(\n    habrDataWithClass \\\n        .groupBy(\"class\").count() \\\n        .select(\"class\", \"count\")\n        .orderBy(\"class\")\n)",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-02-09T14:26:05+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 6,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {
+          "0": {
+            "graph": {
+              "mode": "multiBarChart",
+              "height": 300,
+              "optionOpen": false,
+              "setting": {
+                "table": {
+                  "tableGridState": {},
+                  "tableColumnTypeState": {
+                    "names": {
+                      "class": "string",
+                      "count": "string"
+                    },
+                    "updated": false
+                  },
+                  "tableOptionSpecHash": "[{\"name\":\"useFilter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable filter for columns\"},{\"name\":\"showPagination\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable pagination for better navigation\"},{\"name\":\"showAggregationFooter\",\"valueType\":\"boolean\",\"defaultValue\":false,\"widget\":\"checkbox\",\"description\":\"Enable a footer for displaying aggregated values\"}]",
+                  "tableOptionValue": {
+                    "useFilter": false,
+                    "showPagination": false,
+                    "showAggregationFooter": false
+                  },
+                  "updated": false,
+                  "initialized": false
+                },
+                "multiBarChart": {
+                  "rotate": {
+                    "degree": "-45"
+                  },
+                  "xLabelStatus": "default"
+                }
+              },
+              "commonSetting": {},
+              "keys": [
+                {
+                  "name": "class",
+                  "index": 0,
+                  "aggr": "sum"
+                }
+              ],
+              "groups": [],
+              "values": [
+                {
+                  "name": "count",
+                  "index": 1,
+                  "aggr": "sum"
+                }
+              ]
+            },
+            "helium": {}
+          }
+        },
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TABLE",
+            "data": "class\tcount\n1\t3250\n2\t3049\n3\t2384\n4\t1874\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=15",
+              "$$hashKey": "object:196664"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1612880717213_569762601",
+      "id": "20210119-061717_1202613861",
+      "dateCreated": "2021-02-09T14:25:17+0000",
+      "dateStarted": "2021-02-09T14:30:33+0000",
+      "dateFinished": "2021-02-09T14:30:36+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:195717"
+    },
+    {
+      "title": "Разделим датасет на обучающую и тестовую выборки",
+      "text": "%pyspark\ntrainDF, testDF = habrDataWithClass.randomSplit([.8, .2], seed=42)\n\ntrainDF.coalesce(2).write.mode(\"overwrite\").saveAsTable(\"habr.train\")\ntestDF.coalesce(2).write.mode(\"overwrite\").saveAsTable(\"habr.test\")\n\nprint(\"В обучающей выборке \" + str(trainDF.count()) + \" строк, в тестовой \" + str(testDF.count()) + \" строк\")",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-02-09T14:26:10+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Hive Session ID = 4d4bc2e2-2981-4854-b4d3-3f7c67816ef8\nВ обучающей выборке 8463 строк, в тестовой 2094 строк\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=16",
+              "$$hashKey": "object:196722"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=17",
+              "$$hashKey": "object:196723"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=18",
+              "$$hashKey": "object:196724"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=19",
+              "$$hashKey": "object:196725"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1612880717213_941681703",
+      "id": "20210119-033857_1937080454",
+      "dateCreated": "2021-02-09T14:25:17+0000",
+      "dateStarted": "2021-02-09T14:30:34+0000",
+      "dateFinished": "2021-02-09T14:30:45+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:195718"
+    },
+    {
+      "title": "Построим модель логистической регрессии one vs all для классификации статей по рассчитанным классам",
+      "text": "%pyspark\nfrom pyspark.ml.feature import RegexTokenizer, HashingTF, IDF\nfrom pyspark.ml import Pipeline\nfrom pyspark.ml.classification import LogisticRegression, OneVsRest\nfrom pyspark.ml.evaluation import MulticlassClassificationEvaluator\n\ntrain = spark.table(\"habr.train\").selectExpr(\"description\", \"cast(class as Long) class\").na.drop(\"any\")\ntest = spark.table(\"habr.test\").selectExpr(\"description\", \"cast(class as Long) class\").na.drop(\"any\")\n\nregexTokenizer = RegexTokenizer(inputCol=\"description\", outputCol=\"description_words\", pattern=\"[^a-zа-яё]\", gaps=True).setMinTokenLength(3)\nregexTokenized = regexTokenizer.transform(train)\n\nhashingTF = HashingTF(inputCol=\"description_words\", outputCol=\"rawFeatures\", numFeatures=200000)\nfeaturizedData = hashingTF.transform(regexTokenized)\n\nidf = IDF(inputCol=\"rawFeatures\", outputCol=\"features\")\nidfModel = idf.fit(featurizedData)\nrescaledData = idfModel.transform(featurizedData)\n\nlr = LogisticRegression(labelCol=\"class\", featuresCol=\"features\")\novr = OneVsRest(classifier=lr, labelCol=\"class\", featuresCol=\"features\")\n\npipeline = Pipeline(stages=[regexTokenizer, hashingTF, idf, ovr])\nmodel = pipeline.fit(train)\n",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-02-09T14:26:13+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": []
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=20",
+              "$$hashKey": "object:196785"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=21",
+              "$$hashKey": "object:196786"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=22",
+              "$$hashKey": "object:196787"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=23",
+              "$$hashKey": "object:196788"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=24",
+              "$$hashKey": "object:196789"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=25",
+              "$$hashKey": "object:196790"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=26",
+              "$$hashKey": "object:196791"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=27",
+              "$$hashKey": "object:196792"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=28",
+              "$$hashKey": "object:196793"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=29",
+              "$$hashKey": "object:196794"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=30",
+              "$$hashKey": "object:196795"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=31",
+              "$$hashKey": "object:196796"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=32",
+              "$$hashKey": "object:196797"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=33",
+              "$$hashKey": "object:196798"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=34",
+              "$$hashKey": "object:196799"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=35",
+              "$$hashKey": "object:196800"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=36",
+              "$$hashKey": "object:196801"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=37",
+              "$$hashKey": "object:196802"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=38",
+              "$$hashKey": "object:196803"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=39",
+              "$$hashKey": "object:196804"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=40",
+              "$$hashKey": "object:196805"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=41",
+              "$$hashKey": "object:196806"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=42",
+              "$$hashKey": "object:196807"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=43",
+              "$$hashKey": "object:196808"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=44",
+              "$$hashKey": "object:196809"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=45",
+              "$$hashKey": "object:196810"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=46",
+              "$$hashKey": "object:196811"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=47",
+              "$$hashKey": "object:196812"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=48",
+              "$$hashKey": "object:196813"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=49",
+              "$$hashKey": "object:196814"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=50",
+              "$$hashKey": "object:196815"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=51",
+              "$$hashKey": "object:196816"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=52",
+              "$$hashKey": "object:196817"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=53",
+              "$$hashKey": "object:196818"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=54",
+              "$$hashKey": "object:196819"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=55",
+              "$$hashKey": "object:196820"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=56",
+              "$$hashKey": "object:196821"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=57",
+              "$$hashKey": "object:196822"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=58",
+              "$$hashKey": "object:196823"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=59",
+              "$$hashKey": "object:196824"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=60",
+              "$$hashKey": "object:196825"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=61",
+              "$$hashKey": "object:196826"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=62",
+              "$$hashKey": "object:196827"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=63",
+              "$$hashKey": "object:196828"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=64",
+              "$$hashKey": "object:196829"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=65",
+              "$$hashKey": "object:196830"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=66",
+              "$$hashKey": "object:196831"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=67",
+              "$$hashKey": "object:196832"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=68",
+              "$$hashKey": "object:196833"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=69",
+              "$$hashKey": "object:196834"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=70",
+              "$$hashKey": "object:196835"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=71",
+              "$$hashKey": "object:196836"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=72",
+              "$$hashKey": "object:196837"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=73",
+              "$$hashKey": "object:196838"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=74",
+              "$$hashKey": "object:196839"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=75",
+              "$$hashKey": "object:196840"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=76",
+              "$$hashKey": "object:196841"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=77",
+              "$$hashKey": "object:196842"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=78",
+              "$$hashKey": "object:196843"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=79",
+              "$$hashKey": "object:196844"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=80",
+              "$$hashKey": "object:196845"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=81",
+              "$$hashKey": "object:196846"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=82",
+              "$$hashKey": "object:196847"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=83",
+              "$$hashKey": "object:196848"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=84",
+              "$$hashKey": "object:196849"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=85",
+              "$$hashKey": "object:196850"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=86",
+              "$$hashKey": "object:196851"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=87",
+              "$$hashKey": "object:196852"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=88",
+              "$$hashKey": "object:196853"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=89",
+              "$$hashKey": "object:196854"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=90",
+              "$$hashKey": "object:196855"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=91",
+              "$$hashKey": "object:196856"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=92",
+              "$$hashKey": "object:196857"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=93",
+              "$$hashKey": "object:196858"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=94",
+              "$$hashKey": "object:196859"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=95",
+              "$$hashKey": "object:196860"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=96",
+              "$$hashKey": "object:196861"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=97",
+              "$$hashKey": "object:196862"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=98",
+              "$$hashKey": "object:196863"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=99",
+              "$$hashKey": "object:196864"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=100",
+              "$$hashKey": "object:196865"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=101",
+              "$$hashKey": "object:196866"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=102",
+              "$$hashKey": "object:196867"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=103",
+              "$$hashKey": "object:196868"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=104",
+              "$$hashKey": "object:196869"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=105",
+              "$$hashKey": "object:196870"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=106",
+              "$$hashKey": "object:196871"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=107",
+              "$$hashKey": "object:196872"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=108",
+              "$$hashKey": "object:196873"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=109",
+              "$$hashKey": "object:196874"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=110",
+              "$$hashKey": "object:196875"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=111",
+              "$$hashKey": "object:196876"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=112",
+              "$$hashKey": "object:196877"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=113",
+              "$$hashKey": "object:196878"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=114",
+              "$$hashKey": "object:196879"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=115",
+              "$$hashKey": "object:196880"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=116",
+              "$$hashKey": "object:196881"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=117",
+              "$$hashKey": "object:196882"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=118",
+              "$$hashKey": "object:196883"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=119",
+              "$$hashKey": "object:196884"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=120",
+              "$$hashKey": "object:196885"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=121",
+              "$$hashKey": "object:196886"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=122",
+              "$$hashKey": "object:196887"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=123",
+              "$$hashKey": "object:196888"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=124",
+              "$$hashKey": "object:196889"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=125",
+              "$$hashKey": "object:196890"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=126",
+              "$$hashKey": "object:196891"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=127",
+              "$$hashKey": "object:196892"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=128",
+              "$$hashKey": "object:196893"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=129",
+              "$$hashKey": "object:196894"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=130",
+              "$$hashKey": "object:196895"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=131",
+              "$$hashKey": "object:196896"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=132",
+              "$$hashKey": "object:196897"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=133",
+              "$$hashKey": "object:196898"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=134",
+              "$$hashKey": "object:196899"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=135",
+              "$$hashKey": "object:196900"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=136",
+              "$$hashKey": "object:196901"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=137",
+              "$$hashKey": "object:196902"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=138",
+              "$$hashKey": "object:196903"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=139",
+              "$$hashKey": "object:196904"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=140",
+              "$$hashKey": "object:196905"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=141",
+              "$$hashKey": "object:196906"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=142",
+              "$$hashKey": "object:196907"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=143",
+              "$$hashKey": "object:196908"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=144",
+              "$$hashKey": "object:196909"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=145",
+              "$$hashKey": "object:196910"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=146",
+              "$$hashKey": "object:196911"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=147",
+              "$$hashKey": "object:196912"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=148",
+              "$$hashKey": "object:196913"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=149",
+              "$$hashKey": "object:196914"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=150",
+              "$$hashKey": "object:196915"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=151",
+              "$$hashKey": "object:196916"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=152",
+              "$$hashKey": "object:196917"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=153",
+              "$$hashKey": "object:196918"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=154",
+              "$$hashKey": "object:196919"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=155",
+              "$$hashKey": "object:196920"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=156",
+              "$$hashKey": "object:196921"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=157",
+              "$$hashKey": "object:196922"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=158",
+              "$$hashKey": "object:196923"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=159",
+              "$$hashKey": "object:196924"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=160",
+              "$$hashKey": "object:196925"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=161",
+              "$$hashKey": "object:196926"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=162",
+              "$$hashKey": "object:196927"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=163",
+              "$$hashKey": "object:196928"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=164",
+              "$$hashKey": "object:196929"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=165",
+              "$$hashKey": "object:196930"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=166",
+              "$$hashKey": "object:196931"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=167",
+              "$$hashKey": "object:196932"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=168",
+              "$$hashKey": "object:196933"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=169",
+              "$$hashKey": "object:196934"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=170",
+              "$$hashKey": "object:196935"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=171",
+              "$$hashKey": "object:196936"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=172",
+              "$$hashKey": "object:196937"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=173",
+              "$$hashKey": "object:196938"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=174",
+              "$$hashKey": "object:196939"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=175",
+              "$$hashKey": "object:196940"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=176",
+              "$$hashKey": "object:196941"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=177",
+              "$$hashKey": "object:196942"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=178",
+              "$$hashKey": "object:196943"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=179",
+              "$$hashKey": "object:196944"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=180",
+              "$$hashKey": "object:196945"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=181",
+              "$$hashKey": "object:196946"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=182",
+              "$$hashKey": "object:196947"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=183",
+              "$$hashKey": "object:196948"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=184",
+              "$$hashKey": "object:196949"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=185",
+              "$$hashKey": "object:196950"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=186",
+              "$$hashKey": "object:196951"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=187",
+              "$$hashKey": "object:196952"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=188",
+              "$$hashKey": "object:196953"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=189",
+              "$$hashKey": "object:196954"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=190",
+              "$$hashKey": "object:196955"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=191",
+              "$$hashKey": "object:196956"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=192",
+              "$$hashKey": "object:196957"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=193",
+              "$$hashKey": "object:196958"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=194",
+              "$$hashKey": "object:196959"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=195",
+              "$$hashKey": "object:196960"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=196",
+              "$$hashKey": "object:196961"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=197",
+              "$$hashKey": "object:196962"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=198",
+              "$$hashKey": "object:196963"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=199",
+              "$$hashKey": "object:196964"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=200",
+              "$$hashKey": "object:196965"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=201",
+              "$$hashKey": "object:196966"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=202",
+              "$$hashKey": "object:196967"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=203",
+              "$$hashKey": "object:196968"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=204",
+              "$$hashKey": "object:196969"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=205",
+              "$$hashKey": "object:196970"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=206",
+              "$$hashKey": "object:196971"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=207",
+              "$$hashKey": "object:196972"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=208",
+              "$$hashKey": "object:196973"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=209",
+              "$$hashKey": "object:196974"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=210",
+              "$$hashKey": "object:196975"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=211",
+              "$$hashKey": "object:196976"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=212",
+              "$$hashKey": "object:196977"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=213",
+              "$$hashKey": "object:196978"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=214",
+              "$$hashKey": "object:196979"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=215",
+              "$$hashKey": "object:196980"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=216",
+              "$$hashKey": "object:196981"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=217",
+              "$$hashKey": "object:196982"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=218",
+              "$$hashKey": "object:196983"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=219",
+              "$$hashKey": "object:196984"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=220",
+              "$$hashKey": "object:196985"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=221",
+              "$$hashKey": "object:196986"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=222",
+              "$$hashKey": "object:196987"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=223",
+              "$$hashKey": "object:196988"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=224",
+              "$$hashKey": "object:196989"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=225",
+              "$$hashKey": "object:196990"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=226",
+              "$$hashKey": "object:196991"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=227",
+              "$$hashKey": "object:196992"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=228",
+              "$$hashKey": "object:196993"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=229",
+              "$$hashKey": "object:196994"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=230",
+              "$$hashKey": "object:196995"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=231",
+              "$$hashKey": "object:196996"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=232",
+              "$$hashKey": "object:196997"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=233",
+              "$$hashKey": "object:196998"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=234",
+              "$$hashKey": "object:196999"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=235",
+              "$$hashKey": "object:197000"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=236",
+              "$$hashKey": "object:197001"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=237",
+              "$$hashKey": "object:197002"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=238",
+              "$$hashKey": "object:197003"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=239",
+              "$$hashKey": "object:197004"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=240",
+              "$$hashKey": "object:197005"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=241",
+              "$$hashKey": "object:197006"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=242",
+              "$$hashKey": "object:197007"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=243",
+              "$$hashKey": "object:197008"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=244",
+              "$$hashKey": "object:197009"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=245",
+              "$$hashKey": "object:197010"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=246",
+              "$$hashKey": "object:197011"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=247",
+              "$$hashKey": "object:197012"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=248",
+              "$$hashKey": "object:197013"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=249",
+              "$$hashKey": "object:197014"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=250",
+              "$$hashKey": "object:197015"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=251",
+              "$$hashKey": "object:197016"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=252",
+              "$$hashKey": "object:197017"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=253",
+              "$$hashKey": "object:197018"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=254",
+              "$$hashKey": "object:197019"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=255",
+              "$$hashKey": "object:197020"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=256",
+              "$$hashKey": "object:197021"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=257",
+              "$$hashKey": "object:197022"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=258",
+              "$$hashKey": "object:197023"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=259",
+              "$$hashKey": "object:197024"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=260",
+              "$$hashKey": "object:197025"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=261",
+              "$$hashKey": "object:197026"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=262",
+              "$$hashKey": "object:197027"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=263",
+              "$$hashKey": "object:197028"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=264",
+              "$$hashKey": "object:197029"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=265",
+              "$$hashKey": "object:197030"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=266",
+              "$$hashKey": "object:197031"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=267",
+              "$$hashKey": "object:197032"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=268",
+              "$$hashKey": "object:197033"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=269",
+              "$$hashKey": "object:197034"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=270",
+              "$$hashKey": "object:197035"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=271",
+              "$$hashKey": "object:197036"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=272",
+              "$$hashKey": "object:197037"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=273",
+              "$$hashKey": "object:197038"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=274",
+              "$$hashKey": "object:197039"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=275",
+              "$$hashKey": "object:197040"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=276",
+              "$$hashKey": "object:197041"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=277",
+              "$$hashKey": "object:197042"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=278",
+              "$$hashKey": "object:197043"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=279",
+              "$$hashKey": "object:197044"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=280",
+              "$$hashKey": "object:197045"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=281",
+              "$$hashKey": "object:197046"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=282",
+              "$$hashKey": "object:197047"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=283",
+              "$$hashKey": "object:197048"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1612880717213_1000825170",
+      "id": "20210119-034146_990133931",
+      "dateCreated": "2021-02-09T14:25:17+0000",
+      "dateStarted": "2021-02-09T14:30:36+0000",
+      "dateFinished": "2021-02-09T14:31:34+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:195719"
+    },
+    {
+      "text": "%pyspark\npredictions  = model.transform(test)\nresult.select(\"prediction\", \"class\").show(20, True)",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-02-09T14:26:16+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "ERROR",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "Fail to execute line 3: result.select(\"prediction\", \"class\").show(20, True)\nTraceback (most recent call last):\n  File \"/tmp/1612880759021-0/zeppelin_python.py\", line 158, in <module>\n    exec(code, _zcUserQueryNameSpace)\n  File \"<stdin>\", line 3, in <module>\nNameError: name 'result' is not defined\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1612880717213_1710605407",
+      "id": "20210119-052038_1655456414",
+      "dateCreated": "2021-02-09T14:25:17+0000",
+      "dateStarted": "2021-02-09T14:30:45+0000",
+      "dateFinished": "2021-02-09T14:31:35+0000",
+      "status": "ERROR",
+      "$$hashKey": "object:195720"
+    },
+    {
+      "title": "Получим F1 score для построенной модели",
+      "text": "%pyspark\nfrom pyspark.ml.evaluation import MulticlassClassificationEvaluator\n\npredictions  = model.transform(test)\n\nevaluator = MulticlassClassificationEvaluator(metricName=\"f1\", labelCol=\"class\")\nf1Score = evaluator.evaluate(predictions)\nprint(\"F1 Score: \")\nprint(f1Score)",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-02-09T14:26:19+0000",
+      "progress": 0,
+      "config": {
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "colWidth": 12,
+        "editorMode": "ace/mode/python",
+        "fontSize": 9,
+        "title": true,
+        "results": {},
+        "enabled": true
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "results": {
+        "code": "SUCCESS",
+        "msg": [
+          {
+            "type": "TEXT",
+            "data": "F1 Score: \n0.293333736818\n"
+          }
+        ]
+      },
+      "apps": [],
+      "runtimeInfos": {
+        "jobUrl": {
+          "propertyName": "jobUrl",
+          "label": "SPARK JOB",
+          "tooltip": "View in Spark web UI",
+          "group": "spark",
+          "values": [
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=284",
+              "$$hashKey": "object:198210"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=285",
+              "$$hashKey": "object:198211"
+            },
+            {
+              "jobUrl": "http://bigdataanalytics-head-0.novalocal:4044/jobs/job?id=286",
+              "$$hashKey": "object:198212"
+            }
+          ],
+          "interpreterSettingId": "spark"
+        }
+      },
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1612880717213_1080077647",
+      "id": "20210119-055310_1380112664",
+      "dateCreated": "2021-02-09T14:25:17+0000",
+      "dateStarted": "2021-02-09T14:31:34+0000",
+      "dateFinished": "2021-02-09T14:31:42+0000",
+      "status": "FINISHED",
+      "$$hashKey": "object:195721"
+    },
+    {
+      "text": "%pyspark\n",
+      "user": "BD_305_nkolegano",
+      "dateUpdated": "2021-02-09T14:27:58+0000",
+      "progress": 0,
+      "config": {
+        "colWidth": 12,
+        "fontSize": 9,
+        "enabled": true,
+        "results": {},
+        "editorSetting": {
+          "language": "python",
+          "editOnDblClick": false,
+          "completionKey": "TAB",
+          "completionSupport": true
+        },
+        "editorMode": "ace/mode/python"
+      },
+      "settings": {
+        "params": {},
+        "forms": {}
+      },
+      "apps": [],
+      "runtimeInfos": {},
+      "progressUpdateIntervalMs": 500,
+      "jobName": "paragraph_1612880878968_581877049",
+      "id": "paragraph_1612880878968_581877049",
+      "dateCreated": "2021-02-09T14:27:58+0000",
+      "status": "READY",
+      "$$hashKey": "object:195722"
+    }
+  ],
+  "name": "305_Koleganov_HW_4",
+  "id": "2FWEKQJ8F",
+  "defaultInterpreterGroup": "spark",
+  "version": "0.9.0",
+  "noteParams": {},
+  "noteForms": {},
+  "angularObjects": {},
+  "config": {
+    "isZeppelinNotebookCronEnable": false,
+    "looknfeel": "default",
+    "personalizedMode": "false"
+  },
+  "info": {},
+  "path": "/305_Koleganov/305_Koleganov_HW_4"
+}
